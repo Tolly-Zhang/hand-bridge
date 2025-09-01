@@ -31,8 +31,8 @@ while True:
 
     # Exit the loop when 'q' and 'c' are both pressed
     key = cv2.waitKey(1) & 0xFF
-    if key == ord('q'):
-        if cv2.waitKey(1) & 0xFF == ord('c'):
+    if key == ord('c'):
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             print("'q' and 'c' pressed. Exiting.")
             break
 
