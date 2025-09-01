@@ -18,6 +18,16 @@ if not cap.isOpened():
     print("Error: Unable to access the camera.")
     exit()
 
+# Retrieve camera properties
+frame_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+frame_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+fps = cap.get(cv2.CAP_PROP_FPS)
+
+# Display camera information
+print(f"Camera Index: {cameraIndex}")
+print(f"Resolution: {frame_width}x{frame_height}")
+print(f"FPS: {fps if fps > 0 else 'Not available'}")
+
 cv2.namedWindow('Webcam Feed')  # Create the window once
 
 while True:
