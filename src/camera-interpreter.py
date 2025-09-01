@@ -2,7 +2,7 @@ import cv2
 from cv2_enumerate_cameras import enumerate_cameras
 
 cameraIndex = 701
-cameraResolution = (3840, 2160)  # 4K resolution
+cameraResolution = (1920, 1080)  # 4K resolution
 windowResolution = (1920, 1080)  # Window size
 fps = 30
 
