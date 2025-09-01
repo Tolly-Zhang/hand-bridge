@@ -1,6 +1,11 @@
 import cv2
 from cv2_enumerate_cameras import enumerate_cameras
 
+cameraIndex = 701
+cameraResolution = (3840, 2160)  # 4K resolution
+windowResolution = (1920, 1080)  # Window size
+fps = 30
+
 # List all available cameras
 cameras = enumerate_cameras()
 
@@ -9,10 +14,19 @@ for camera_info in enumerate_cameras():
     print(f'{camera_info.index}: {camera_info.name}')
 
 # cameraIndex = int(input("Enter camera index: "))
-cameraIndex = 701
 
 # Initialize webcam
 cap = cv2.VideoCapture(cameraIndex)
+
+# Set the codec to MJPEG
+cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+
+# Set the resolution to 3840x2160 (4K)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, cameraResolution[0])
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cameraResolution[1])
+
+# Optionally, set the FPS (frames per second)
+cap.set(cv2.CAP_PROP_FPS, fps)
 
 if not cap.isOpened():
     print("Error: Unable to access the camera.")
@@ -28,7 +42,14 @@ print(f"Camera Index: {cameraIndex}")
 print(f"Resolution: {frame_width}x{frame_height}")
 print(f"FPS: {fps if fps > 0 else 'Not available'}")
 
-cv2.namedWindow('Webcam Feed')  # Create the window once
+
+cv2.namedWindow('Webcam Feed', cv2.WINDOW_NORMAL)  # Create the window once
+
+#Resize window
+cv2.resizeWindow('Webcam Feed', windowResolution[0], windowResolution[1])
+
+# # Prevent manual resizing
+# cv2.setWindowProperty('Webcam Feed', cv2.WND_PROP_FULLSCREEN, 0)
 
 while True:
     ret, frame = cap.read()
