@@ -39,12 +39,11 @@ while True:
     # Display the current frame
     cv2.imshow('Webcam Feed', frame)
 
-    # Exit the loop when 'q' and 'c' are both pressed
+    # Exit the loop when 'q' is pressed
     key = cv2.waitKey(1) & 0xFF
-    if key == ord('c'):
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            print("'q' and 'c' pressed. Exiting.")
-            break
+    if key == ord('q'):
+        print("'q' pressed. Exiting.")
+        break
 
 cap.release()
 cv2.destroyAllWindows()
