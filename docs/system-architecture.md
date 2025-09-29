@@ -1,4 +1,4 @@
-# System Architecture (MVP, 1-Week Build)
+# System Architecture (MVP)
 
 ## MVP Goals (scoped)
 
@@ -14,7 +14,7 @@
 ## Processing Loop (single-threaded, simple)
 
 ```
-Capture frame (OpenCV) ─▶ MediaPipe detect_for_video(...)
+Capture frame (OpenCV) ─▶ MediaPipe detect_async(...)
                                │
                                ▼
                       Build FramePayload
@@ -34,9 +34,9 @@ Capture frame (OpenCV) ─▶ MediaPipe detect_for_video(...)
 
 ## MediaPipe Operating Mode (MVP choice)
 
-* **Default:** `VIDEO` mode (`detect_for_video(image, timestamp_ms)`), called from the capture loop.
-  *Why:* dead simple, avoids async/callback plumbing, still “live” at 30 FPS.
-* **Future option:** `LIVE_STREAM` (swap in later with a small wrapper change).
+* **Default:** `LIVE_STREAM` mode (`detect_async(image, timestamp_ms)`), called from the capture loop.
+  *Why:* enables lower-latency, future-proof async/callback handling, still “live” at 30 FPS.
+* **Future option:** `VIDEO` (swap in later with a small wrapper change).
 
 **Timing:** compute `timestamp_ms` from a monotonic clock; estimate FPS in the loop.
 
@@ -46,7 +46,7 @@ Capture frame (OpenCV) ─▶ MediaPipe detect_for_video(...)
 
 Minimal data model passed to the active demo only.
 
-### Dataclasses (signatures only; for Copilot to scaffold)
+### Dataclasses (signatures only; for scaffolding)
 
 ```python
 # src/handmotion/payload.py
@@ -191,7 +191,7 @@ class DemoManager:
 
 ---
 
-## Hotkeys (no overlay UI)
+## Hotkeys (if no overlay UI)
 
 * `1` → `DemoManager.set_active("cursor")`
 * `2` → `DemoManager.set_active("swipe_scroll")`
@@ -210,7 +210,7 @@ Implement key handling in `core.py` (OpenCV window key capture or `keyboard` lib
 * For each iteration:
 
   1. Grab frame + `timestamp_ns`.
-  2. Call MediaPipe `detect_for_video(...)`.
+  2. Call MediaPipe `detect_async(...)`.
   3. Build `FramePayload` (normalized coords + handedness + `Meta`).
   4. `DemoManager.on_frame(payload)`.
   5. Handle hotkeys; print minimal FPS every second.
@@ -255,7 +255,6 @@ baud = 115200
 
 ## Upgrade Path (post-MVP)
 
-* Swap `detect_for_video` → `detect_async` (LIVE_STREAM).
 * Add overlay HUD + calibration wizard.
 * Restore arbitration for multi-demo composition.
 * Add kinematics and richer gesture events.
