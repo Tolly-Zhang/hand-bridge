@@ -13,7 +13,7 @@ class CursorDemo(BaseDemo):
         super().__init__(context)
         self.mouse = context.get("mouse_controller")
         if not self.mouse:
-            raise ValueError("CursorDemo requires a MouseController in context")
+            raise ValueError("CursorDemo requires 'mouse_controller' in context")
         
         self.hand = None  # Currently tracked hand
         self.pos_x, self.pos_y = 0.5, 0.5  # Start in the center of the screen
