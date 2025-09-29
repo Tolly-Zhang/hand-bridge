@@ -14,6 +14,7 @@ class DemoManager:
             for k, v in self.demos.items():
                 if k != demo_id:
                     v.disable()
+        print(f"Active demo set to: {self.active_id}")
 
     def get_active(self) -> str:
         return self.active_id
