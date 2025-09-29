@@ -11,6 +11,8 @@ class MouseController:
     def get_mouse_position(self) -> tuple[int, int]:
         return pyautogui.position()
 
+    def is_mouse_down(self) -> bool:
+        return self.mouse_down
 
     def move_norm(self, x: float, y: float) -> None:
         orig_x, orig_y = x, y
