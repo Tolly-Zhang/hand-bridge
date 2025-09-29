@@ -22,7 +22,7 @@ class MouseController:
         py = int(y * self.screen_height)
         pyautogui.moveTo(px, py)
 
-    def click(self, button: str = "left") -> None:
+    def click_once(self, button: str = "left") -> None:
         pyautogui.click(button=button)
 
     def scroll(self, dx: int = 0, dy: int = 0) -> None:
@@ -38,5 +38,5 @@ class MouseController:
 # mouse = MouseController()
 # mouse.printRange()
 # mouse.move_norm(0.5, 0.5)
-# mouse.click()
+# mouse.click_once()
 # mouse.scroll(dy=1)
