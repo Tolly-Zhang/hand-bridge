@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Literal
 
-Handedness = Literal["Left", "Right"]
+Handedness = Literal["L", "R"]
 
 @dataclass
 class Landmark:
