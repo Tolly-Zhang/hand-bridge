@@ -1,7 +1,42 @@
+import pyautogui
+
 class MouseController:
+    def __init__(self):
+        self.screen_width, self.screen_height = pyautogui.size()
+
+    def printRange(self):
+        print(f"Screen size: width={self.screen_width}, height={self.screen_height}")
+
     def move_norm(self, x: float, y: float) -> None:
-        pass
+        orig_x, orig_y = x, y
+        clamped = False
+        if not (0.0 <= x <= 1.0):
+            x = min(max(x, 0.0), 1.0)
+            clamped = True
+        if not (0.0 <= y <= 1.0):
+            y = min(max(y, 0.0), 1.0)
+            clamped = True
+        if clamped:
+            print(f"[MouseController] Warning: move_norm received out-of-bounds values (x={orig_x}, y={orig_y}), clamped to (x={x}, y={y})")
+        px = int(x * self.screen_width)
+        py = int(y * self.screen_height)
+        pyautogui.moveTo(px, py)
+
     def click(self, button: str = "left") -> None:
-        pass
+        pyautogui.click(button=button)
+
     def scroll(self, dx: int = 0, dy: int = 0) -> None:
-        pass
+        # pyautogui.scroll scrolls vertically; horizontal scroll is OS-dependent
+        if dy != 0:
+            pyautogui.scroll(dy)
+        if dx != 0:
+            try:
+                pyautogui.hscroll(dx)
+            except AttributeError:
+                pass  # hscroll may not be available on all platforms
+
+# mouse = MouseController()
+# mouse.printRange()
+# mouse.move_norm(0.5, 0.5)
+# mouse.click()
+# mouse.scroll(dy=1)
