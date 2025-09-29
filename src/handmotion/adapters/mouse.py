@@ -30,9 +30,11 @@ class MouseController:
 
     def mouse_down(self, button: str = "left") -> None:
         pyautogui.mouseDown(button=button)
+        self.mouse_down = True
 
     def mouse_up(self, button: str = "left") -> None:
         pyautogui.mouseUp(button=button)
+        self.mouse_down = False
 
     def scroll(self, dx: int = 0, dy: int = 0) -> None:
         # pyautogui.scroll scrolls vertically; horizontal scroll is OS-dependent
