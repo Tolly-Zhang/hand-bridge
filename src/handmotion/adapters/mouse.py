@@ -28,6 +28,12 @@ class MouseController:
     def double_click(self, button: str = "left", interval: float = 0.25) -> None:
         pyautogui.doubleClick(button=button, interval=interval)
 
+    def mouse_down(self, button: str = "left") -> None:
+        pyautogui.mouseDown(button=button)
+
+    def mouse_up(self, button: str = "left") -> None:
+        pyautogui.mouseUp(button=button)
+
     def scroll(self, dx: int = 0, dy: int = 0) -> None:
         # pyautogui.scroll scrolls vertically; horizontal scroll is OS-dependent
         if dy != 0:
