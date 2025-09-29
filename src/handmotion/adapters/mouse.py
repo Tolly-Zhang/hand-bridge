@@ -4,8 +4,10 @@ class MouseController:
     def __init__(self):
         self.screen_width, self.screen_height = pyautogui.size()
 
-    def printRange(self):
+    def printRange(self) -> tuple[int, int]:
         print(f"Screen size: width={self.screen_width}, height={self.screen_height}")
+        return self.screen_width, self.screen_height
+
 
     def move_norm(self, x: float, y: float) -> None:
         orig_x, orig_y = x, y
