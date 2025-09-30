@@ -4,6 +4,8 @@ DEFAULT_CAMERA_INDEX = 701
 
 DEFAULT_CAMERA_RESOLUTION = (1920, 1080)  # Default resolution
 
+CONVERT_BGR_TO_RGB = True  # Whether to convert BGR to RGB for processing
+
 class Camera:
     """Singleton class to manage camera access."""
     _instance = None
@@ -29,6 +31,8 @@ class Camera:
         ret, frame = self.cap.read()
         if not ret:
             raise RuntimeError("Failed to read frame from camera.")
+        if CONVERT_BGR_TO_RGB:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         return frame
     
     def show_feed(self, window_name="Camera Feed"):
