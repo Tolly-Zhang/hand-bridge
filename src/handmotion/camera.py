@@ -27,16 +27,16 @@ class Camera:
 
         print(f"Camera initialized with index {camera_index} at resolution {width}x{height}.")
     
-    def read(self):
+    def read(self, convert_to_rgb=CONVERT_BGR_TO_RGB):
         ret, frame = self.cap.read()
         if not ret:
             raise RuntimeError("Failed to read frame from camera.")
-        if CONVERT_BGR_TO_RGB:
+        if convert_to_rgb:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         return frame
     
     def show_feed(self, window_name="Camera Feed"):
-        frame = self.read()
+        frame = self.read(convert_to_rgb=False)
         cv2.imshow(window_name, frame)
         return frame
 
