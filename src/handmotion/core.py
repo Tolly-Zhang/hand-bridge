@@ -5,8 +5,8 @@ from .payload import FramePayload
 from .camera import Camera
 from .mediapipe import MediaPipeHands
 
-import cv2
 from cv2_enumerate_cameras import enumerate_cameras
+import keyboard
 
 def main():
     # List available cameras
@@ -31,7 +31,8 @@ def main():
         # print(f"Processing time: {processing_time}s")
 
         # Exit on 'q' key press
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if keyboard.is_pressed('q'):
+            print("Exiting...")
             break
 
     del camera  # Ensure camera resources are released
