@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Literal
 
-Handedness = Literal["L", "R"]
+Handedness = Literal["Left", "Right"]
 
 WRIST = 0
 THUMB_TIP = 4
