@@ -44,7 +44,7 @@ class Meta:
     def __post_init__(self) -> None:
         assert self.width > 0, f"Width must be positive. Got {self.width} instead."
         assert self.height > 0, f"Height must be positive. Got {self.height} instead."
-        assert self.fps_estimate > 0, f"FPS estimate must be positive. Got {self.fps_estimate} instead."
+        assert self.fps_estimate >= 0, f"FPS estimate must be positive. Got {self.fps_estimate} instead."
 
 @dataclass
 class FramePayload:
