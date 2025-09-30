@@ -37,8 +37,9 @@ class Camera:
 
         return self.frame_rgb if convert_to_rgb else self.frame_bgr
 
-    def show_feed(self, window_name="Camera Feed"):
+    def show_feed(self, window_name="Camera Feed", wait_key=1):
         cv2.imshow(window_name, self.frame_bgr)
+        cv2.waitKey(wait_key)
 
     def release(self):
         if self.cap.isOpened():
