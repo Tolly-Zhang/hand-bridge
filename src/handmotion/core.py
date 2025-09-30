@@ -27,8 +27,8 @@ def main():
 
     while True:
         frame = camera.read()
-        results, processing_time = hands.process_sync_with_time_ns(frame)
-        # print(f"Processing time: {processing_time}s")
+        results = hands.process_sync(frame)
+
 
         # Exit on 'q' key press
         if keyboard.is_pressed('q'):
