@@ -4,6 +4,13 @@ from typing import List, Literal
 
 Handedness = Literal["L", "R"]
 
+WRIST = 0
+THUMB_TIP = 4
+INDEX_FINGER_TIP = 8
+MIDDLE_FINGER_TIP = 12
+RING_FINGER_TIP = 16
+PINKY_TIP = 20
+
 @dataclass
 class Landmark:
     x_norm: float  # [0,1]
