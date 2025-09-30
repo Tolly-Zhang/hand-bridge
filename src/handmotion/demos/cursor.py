@@ -28,9 +28,14 @@ class CursorDemo(BaseDemo):
         # Additional teardown if needed
 
     def on_frame(self, payload: FramePayload) -> None:
+
+        if not self.enabled:
+            return
+
         if not payload.hands:
             print("No hands detected")
             return                                      # No hands detected
+        
         for hand in payload.hands:
             if hand.handedness == self.hand_preference:
                 self.hand = hand
