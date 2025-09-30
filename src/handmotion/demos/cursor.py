@@ -3,6 +3,7 @@ from ..payload import FramePayload
 from ..adapters.mouse import MouseController
 
 import math
+from ..payload import Landmark
 
 class CursorDemo(BaseDemo):
     id = "cursor"
@@ -43,15 +44,15 @@ class CursorDemo(BaseDemo):
         if not self.hand:
             print(f"Error: No {self.hand_preference} hand detected")
             return
-        self.pos_x = self.hand.landmarks[20].x_norm     # Pinky finger tip
-        self.pos_y = self.hand.landmarks[20].y_norm     # Pinky finger tip
+        self.pos_x = self.hand.landmarks[Landmark.PINKY_TIP].x_norm     # Pinky finger tip
+        self.pos_y = self.hand.landmarks[Landmark.PINKY_TIP].y_norm     # Pinky finger tip
         self.mouse.move_norm(self.pos_x, self.pos_y)
 
         # print(f"Cursor moved to: ({self.pos_x:.2f}, {self.pos_y:.2f})")
 
         # Example click detection (thumb tip to index tip distance)
-        thumb_tip = self.hand.landmarks[4]
-        index_tip = self.hand.landmarks[8]
+        thumb_tip = self.hand.landmarks[Landmark.THUMB_TIP]
+        index_tip = self.hand.landmarks[Landmark.INDEX_TIP]
 
         thumb_index_dist = math.dist((thumb_tip.x_norm, thumb_tip.y_norm, thumb_tip.z_norm),
                                      (index_tip.x_norm, index_tip.y_norm, index_tip.z_norm))
