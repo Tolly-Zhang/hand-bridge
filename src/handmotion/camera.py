@@ -50,3 +50,4 @@ class Camera:
     def __del__(self):
         self.release()
         self.close_all()
+        print("Camera resources released and windows closed.")
