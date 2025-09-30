@@ -43,3 +43,8 @@ class Meta:
 class FramePayload:
     meta: Meta
     hands: List[Hand]
+
+    def print_summary(self) -> None:
+        print(f"Frame at {self.meta.timestamp_ns} ns: {len(self.hands)} hands detected.")
+        for hand in self.hands:
+            print(f"  Hand {hand.handedness} with confidence {hand.confidence:.2f}")
