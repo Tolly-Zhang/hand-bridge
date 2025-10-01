@@ -4,8 +4,6 @@ DEFAULT_CAMERA_INDEX = 701
 
 DEFAULT_CAMERA_RESOLUTION = (1920, 1080)  # Default resolution
 
-CONVERT_BGR_TO_RGB = True  # Whether to convert BGR to RGB for processing
-
 class Camera:
     """Singleton class to manage camera access."""
     _instance = None
