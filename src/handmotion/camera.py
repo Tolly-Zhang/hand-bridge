@@ -40,6 +40,9 @@ class Camera:
 
     def get_frame_bgr(self):
         return self.frame_bgr
+    
+    def get_frame_dimensions(self):
+        return (self.frame_rgb.shape[1], self.frame_rgb.shape[0])
 
     def show_feed(self, window_name="Camera Feed", wait_key=1):
         cv2.imshow(window_name, self.frame_bgr)

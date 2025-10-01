@@ -34,10 +34,15 @@ def main():
         time_controller.update()
 
         camera.read()
+
+
         results = hands.process_sync(camera.get_frame_rgb())
         hands.annotate_image(camera.get_frame_bgr())
 
-        payload = PayloadBuilder.build(meta=None, hands=results)
+        payload = PayloadBuilder.build(frame_dimensions=camera.get_frame_dimensions(), 
+                                       time_ns=time_controller.get_elapsed_time_ns(), 
+                                       time_delta_ns=time_controller.get_delta_ns(),
+                                       hands=results)
         payload.print_summary()
 
         camera.show_feed()
@@ -47,7 +52,7 @@ def main():
             print("Exiting...")
             break
 
-        time.sleep(1)  # Delay for testing purposes
+        # time.sleep(1)  # Delay for testing purposes
 
     camera.shutdown()  # Ensure camera is shutdown properly
 
