@@ -4,6 +4,7 @@ from .manager import DemoManager
 from .payload import FramePayload
 from .camera import Camera
 from .mediapipe import MediaPipeHands
+from .time_controller import TimeController
 from .payload_builder import PayloadBuilder
 
 from cv2_enumerate_cameras import enumerate_cameras
@@ -21,14 +22,17 @@ def main():
 
     camera_index = int(input("Enter camera index: "))
 
-    # Initialize Camera instance
+    # Initialize Camera, MediaPipeHands, and TimeController instance
     camera = Camera(camera_index=camera_index)
-
-    # Initialize MediaPipeHands
     hands = MediaPipeHands()
+    time_controller = TimeController()
+
+    time_controller.start()
 
     while True:
-        time.sleep(1)  # Delay for testing purposes
+        
+        time_controller.update()
+
         camera.read()
         results = hands.process_sync(camera.get_frame_rgb())
         hands.annotate_image(camera.get_frame_bgr())
@@ -42,6 +46,8 @@ def main():
         if keyboard.is_pressed('q'):
             print("Exiting...")
             break
+
+        time.sleep(1)  # Delay for testing purposes
 
     camera.shutdown()  # Ensure camera is shutdown properly
 
