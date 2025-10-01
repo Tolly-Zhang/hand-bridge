@@ -29,9 +29,11 @@ class Hand:
     handedness: Handedness
     confidence: float
     landmarks: List[Landmark]  # len == 21
+    world_landmarks: List[Landmark]  # len == 21
 
     def __post_init__(self) -> None:
         assert len(self.landmarks) == 21, f"Hand must have exactly 21 landmarks. Got {len(self.landmarks)} instead."
+        assert len(self.world_landmarks) == 21, f"Hand must have exactly 21 world landmarks. Got {len(self.world_landmarks)} instead."
         assert 0.0 <= self.confidence <= 1.0, f"Confidence must be in [0,1]. Got {self.confidence} instead."
 
 @dataclass

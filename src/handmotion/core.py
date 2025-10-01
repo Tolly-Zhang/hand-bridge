@@ -3,10 +3,10 @@
 from .manager import DemoManager
 from .payload import FramePayload
 from .camera import Camera
+from .mediapipe import MediaPipeHands
 
-import mediapipe as mp
-import cv2
 from cv2_enumerate_cameras import enumerate_cameras
+import keyboard
 
 def main():
     # List available cameras
@@ -22,20 +22,17 @@ def main():
     # Initialize Camera instance
     camera = Camera()
 
-    # Initialize MediaPipe
-    mp_hands = mp.solutions.hands
-    hands = mp_hands.Hands()
+    # Initialize MediaPipeHands
+    hands = MediaPipeHands()
 
     while True:
         frame = camera.read()
-        # Optionally, process with MediaPipe here
-        # results = hands.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        results = hands.process_sync(frame)
 
-        # Show the frame
-        camera.show_feed()
 
         # Exit on 'q' key press
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if keyboard.is_pressed('q'):
+            print("Exiting...")
             break
 
     del camera  # Ensure camera resources are released
