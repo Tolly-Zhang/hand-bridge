@@ -1,14 +1,21 @@
+from ..config.config import config
+
 from .base import BaseDemo
+
 from ..payload import FramePayload
+from ..payload import Landmark
+
 from ..adapters.mouse import MouseController
 
 import math
-from ..payload import Landmark
+
+HAND_PREFERENCE = config.get("cursor", "HAND_PREFERENCE")
+CLICK_THRESHOLD = config.getfloat("cursor", "CLICK_THRESHOLD")
 
 class CursorDemo(BaseDemo):
     id = "cursor"
     name = "Cursor Demo"
-    hand_preference = "R"  # Prefer right hand for cursor control
+    hand_preference = HAND_PREFERENCE  # Prefer right hand for cursor control
 
     def __init__(self, context: dict) -> None:
         super().__init__(context)
@@ -18,8 +25,8 @@ class CursorDemo(BaseDemo):
         
         self.hand = None  # Currently tracked hand
         self.pos_x, self.pos_y = 0.5, 0.5  # Start in the center of the screen
-        self.click_threshold = 0.05  # Distance threshold for click detection
-    
+        self.click_threshold = CLICK_THRESHOLD  # Distance threshold for click detection
+
     def enable(self) -> None:
         super().enable()
         # Additional setup if needed

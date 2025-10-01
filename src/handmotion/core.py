@@ -4,9 +4,11 @@ from .manager import DemoManager
 from .payload import FramePayload
 from .camera import Camera
 from .mediapipe import MediaPipeHands
+from .payload_builder import PayloadBuilder
 
 from cv2_enumerate_cameras import enumerate_cameras
 import keyboard
+import time
 
 def main():
     # List available cameras
@@ -26,16 +28,22 @@ def main():
     hands = MediaPipeHands()
 
     while True:
-        frame = camera.read()
-        results = hands.process_sync(frame)
+        time.sleep(1)  # Delay for testing purposes
+        camera.read()
+        results = hands.process_sync(camera.get_frame_rgb())
+        hands.annotate_image(camera.get_frame_bgr())
 
+        payload = PayloadBuilder.build(meta=None, hands=results)
+        payload.print_summary()
+
+        camera.show_feed()
 
         # Exit on 'q' key press
         if keyboard.is_pressed('q'):
             print("Exiting...")
             break
 
-    del camera  # Ensure camera resources are released
+    camera.shutdown()  # Ensure camera is shutdown properly
 
 if __name__ == "__main__":
     main()
