@@ -1,8 +1,10 @@
+from .config.config import config
+
 import cv2
 
-DEFAULT_CAMERA_INDEX = 701
+DEFAULT_CAMERA_INDEX = config.getint("Camera", "INDEX")
 
-DEFAULT_CAMERA_RESOLUTION = (1920, 1080)  # Default resolution
+DEFAULT_CAMERA_RESOLUTION = (config.getint("Camera", "RESOLUTION_X"), config.getint("Camera", "RESOLUTION_Y"))
 
 class Camera:
     """Singleton class to manage camera access."""

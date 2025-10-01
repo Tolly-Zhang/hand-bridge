@@ -1,11 +1,13 @@
+from .config.config import config
+
 import mediapipe as mp
 import time
 
-STATIC_IMAGE_MODE = False
-MAX_NUM_HANDS = 2
-MIN_DETECTION_CONFIDENCE = 0.5
-MIN_TRACKING_CONFIDENCE = 0.5
-MODEL_COMPLEXITY = 1
+STATIC_IMAGE_MODE = config.getboolean("MediaPipe", "STATIC_IMAGE_MODE")
+MAX_NUM_HANDS = config.getint("MediaPipe", "MAX_NUM_HANDS")
+MIN_DETECTION_CONFIDENCE = config.getfloat("MediaPipe", "MIN_DETECTION_CONFIDENCE")
+MIN_TRACKING_CONFIDENCE = config.getfloat("MediaPipe", "MIN_TRACKING_CONFIDENCE")
+MODEL_COMPLEXITY = config.getint("MediaPipe", "MODEL_COMPLEXITY")
 
 class MediaPipeHands:
     def __init__(
