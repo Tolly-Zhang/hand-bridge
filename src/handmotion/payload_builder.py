@@ -27,7 +27,10 @@ class PayloadBuilder:
             world_landmark_list = []
 
             # Convert each landmark to NormalizedLandmark and Landmark
+            in_frame = True
             for lm in landmarks.landmark:
+                if lm.x < 0 or lm.x > 1 or lm.y < 0 or lm.y > 1:
+                    in_frame = False
                 landmark = NormalizedLandmark(x=lm.x, y=lm.y, z=lm.z)
                 landmark_list.append(landmark)
 
@@ -37,6 +40,7 @@ class PayloadBuilder:
 
             # Create Hand object
             hand = Hand(
+                in_frame=in_frame,
                 handedness=hand_handedness,
                 confidence=hand_confidence,
                 landmarks=landmark_list,

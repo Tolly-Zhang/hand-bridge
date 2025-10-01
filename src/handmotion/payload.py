@@ -33,6 +33,7 @@ class NormalizedLandmark(Landmark):
 
 @dataclass
 class Hand:
+    in_frame: bool
     handedness: Handedness
     confidence: float
     landmarks: List[NormalizedLandmark]  # len == 21
@@ -63,6 +64,6 @@ class FramePayload:
     def print_summary(self) -> None:
         print(f"Frame with {len(self.hands)} hands detected.")
         for hand in self.hands:
-            print(f"  {hand.handedness} Hand with confidence {hand.confidence:.2f}")
+            print(f"  {hand.handedness} Hand with confidence {hand.confidence:.2f} - In Frame: {hand.in_frame}")
             for i, lm in enumerate(hand.landmarks):
                 print(f"    Landmark {i}: (x={lm.x:.3f}, y={lm.y:.3f}, z={lm.z:.3f})")
