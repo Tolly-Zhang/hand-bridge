@@ -19,10 +19,10 @@ def main():
     for camera_info in cameras:
         print(f"{camera_info.index}: {camera_info.name}")
 
-    # camera_index = int(input("Enter camera index: "))
+    camera_index = int(input("Enter camera index: "))
 
     # Initialize Camera instance
-    camera = Camera()
+    camera = Camera(camera_index=camera_index)
 
     # Initialize MediaPipeHands
     hands = MediaPipeHands()
