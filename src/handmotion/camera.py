@@ -53,6 +53,6 @@ class Camera:
         cv2.destroyAllWindows()
 
     def __del__(self):
+        print("Releasing camera resources...")
         self.release()
         self.close_all()
-        print("Camera resources released and windows closed.")
