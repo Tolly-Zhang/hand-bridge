@@ -43,7 +43,7 @@ def main():
             print("Exiting...")
             break
 
-    del camera  # Ensure camera resources are released
+    camera.shutdown()  # Ensure camera is shutdown properly
 
 if __name__ == "__main__":
     main()
