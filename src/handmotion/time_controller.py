@@ -15,6 +15,7 @@ class TimeController:
         self.current_time = time.time_ns()
         self.elapased = self.current_time - self.start_time
         self.delta = self.elapased - self.last_elapsed
+        self.last_elapsed = self.elapased
     
     def get_elapsed_time_ns(self) -> float:
         return self.elapased
