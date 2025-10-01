@@ -56,6 +56,9 @@ class Meta:
         assert self.height > 0, f"Height must be positive. Got {self.height} instead."
         assert self.fps_estimate >= 0, f"FPS estimate must be positive. Got {self.fps_estimate} instead."
 
+    def __str__(self):
+        return (f"  MetaData: \n    Time Stamp (ns): {self.timestamp_ns}\n    Resolution: ({self.width}, {self.height})\n    FPS Estimate: {self.fps_estimate:.2f}")
+
 @dataclass
 class FramePayload:
     meta: Meta
@@ -63,6 +66,7 @@ class FramePayload:
 
     def print_summary(self) -> None:
         print(f"Frame with {len(self.hands)} hands detected.")
+        print(self.meta)
         for hand in self.hands:
             print(f"  {hand.handedness} Hand with confidence {hand.confidence:.2f} - In Frame: {hand.in_frame}")
             for i, lm in enumerate(hand.landmarks):
