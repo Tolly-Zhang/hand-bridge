@@ -7,6 +7,9 @@ from .mediapipe import MediaPipeHands
 from .time_controller import TimeController
 from .payload_builder import PayloadBuilder
 
+from .adapters.mouse import MouseController
+from .demos.cursor import CursorDemo
+
 from cv2_enumerate_cameras import enumerate_cameras
 import keyboard
 import time
@@ -22,10 +25,19 @@ def main():
 
     camera_index = int(input("Enter camera index: "))
 
-    # Initialize Camera, MediaPipeHands, and TimeController instance
+    # Initialize Camera, MediaPipeHands, TimeController, DemoManager instance
     camera = Camera(camera_index=camera_index)
     hands = MediaPipeHands()
     time_controller = TimeController()
+
+    mouse_controller = MouseController()
+
+    mouse_controller.printRange()
+
+    cursor_demo = CursorDemo(context={"mouse_controller": mouse_controller})
+    cursor_demo.enable()
+
+    demo_manager = DemoManager(demos={"cursor": cursor_demo})
 
     time_controller.start()
 
@@ -43,9 +55,11 @@ def main():
                                        time_ns=time_controller.get_elapsed_time_ns(), 
                                        time_delta_ns=time_controller.get_delta_ns(),
                                        hands=results)
-        payload.print_summary()
+        # payload.print_summary()
 
-        camera.show_feed()
+        # camera.show_feed()
+
+        demo_manager.on_frame(payload)
 
         # Exit on 'q' key press
         if keyboard.is_pressed('q'):
