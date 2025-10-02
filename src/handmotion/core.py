@@ -1,14 +1,14 @@
 # Core loop: capture, mediapipe, payload, hotkeys
 
-from .manager import DemoManager
+from .manager import InterfaceManager
 from .payload import FramePayload
 from .camera import Camera
 from .mediapipe import MediaPipeHands
 from .time_controller import TimeController
 from .payload_builder import PayloadBuilder
 
-from .adapters.mouse import MouseController
-from .demos.cursor import CursorDemo
+from .adapters.mouse import MouseAdapter
+from .demos.cursor import CursorInterface
 
 from cv2_enumerate_cameras import enumerate_cameras
 import keyboard
@@ -30,14 +30,14 @@ def main():
     hands = MediaPipeHands()
     time_controller = TimeController()
 
-    mouse_controller = MouseController()
+    mouse_controller = MouseAdapter()
 
     mouse_controller.printRange()
 
-    cursor_demo = CursorDemo(context={"mouse_controller": mouse_controller})
+    cursor_demo = CursorInterface(context={"mouse_controller": mouse_controller})
     cursor_demo.enable()
 
-    demo_manager = DemoManager(demos={"cursor": cursor_demo})
+    demo_manager = InterfaceManager(demos={"cursor": cursor_demo})
 
     time_controller.start()
 

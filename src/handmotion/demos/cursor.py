@@ -1,11 +1,11 @@
 from ..config.config import config
 
-from .base import BaseDemo
+from .base import BaseInterface
 
 from ..payload import FramePayload
 from ..payload import Landmark
 
-from ..adapters.mouse import MouseController
+from ..adapters.mouse import MouseAdapter
 
 import math
 
@@ -19,7 +19,7 @@ MIDDLE_FINGER_TIP = config.getint("LandmarkIndices", "MIDDLE_FINGER_TIP")
 RING_FINGER_TIP = config.getint("LandmarkIndices", "RING_FINGER_TIP")
 PINKY_TIP = config.getint("LandmarkIndices", "PINKY_TIP")
 
-class CursorDemo(BaseDemo):
+class CursorInterface(BaseInterface):
     id = "cursor"
     name = "Cursor Demo"
     hand_preference = HAND_PREFERENCE  # Preferred hand for cursor control

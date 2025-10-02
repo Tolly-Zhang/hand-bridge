@@ -1,31 +1,31 @@
 from typing import Dict
-from .demos.base import BaseDemo
+from .demos.base import BaseInterface
 from .payload import FramePayload
 
-class DemoManager:
+class InterfaceManager:
     _instance = None
 
-    def __new__(cls, demos: Dict[str, BaseDemo]):
+    def __new__(cls, demos: Dict[str, BaseInterface]):
         if not cls._instance:
-            cls._instance = super(DemoManager, cls).__new__(cls)
+            cls._instance = super(InterfaceManager, cls).__new__(cls)
         else:
             print("Warning: DemoManager instance already exists. Returning the existing instance.")
         return cls._instance
 
-    def __init__(self, demos: Dict[str, BaseDemo]):
+    def __init__(self, demos: Dict[str, BaseInterface]):
         self.demos = demos
         self.active_ids = list(demos.keys())
         self._initialized = True
 
     @staticmethod
-    def get_instance(demos: Dict[str, BaseDemo] = None):
-        if DemoManager._instance is None:
+    def get_instance(demos: Dict[str, BaseInterface] = None):
+        if InterfaceManager._instance is None:
             if demos is None:
                 raise ValueError("DemoManager must be initialized with demos first.")
-            DemoManager(demos)
-        return DemoManager._instance
+            InterfaceManager(demos)
+        return InterfaceManager._instance
 
-    def set_active(self, demo_ids: list[BaseDemo]) -> None:
+    def set_active(self, demo_ids: list[BaseInterface]) -> None:
         for demo_id in demo_ids:
             if demo_id in self.demos:
                 self.active_ids.append(demo_id)

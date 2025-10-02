@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from ..payload import FramePayload
 
-class BaseDemo(ABC):
+class BaseInterface(ABC):
     id: str  # e.g. "cursor", "swipe_scroll", "esp32_led"
     name: str
     enabled: bool = False #Used only if needed
