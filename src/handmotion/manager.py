@@ -6,14 +6,13 @@ class DemoManager:
     _instance = None
 
     def __new__(cls, demos: Dict[str, BaseDemo]):
-        if cls._instance is None:
+        if not cls._instance:
             cls._instance = super(DemoManager, cls).__new__(cls)
-            cls._instance._initialized = False
+        else:
+            print("Warning: DemoManager instance already exists. Returning the existing instance.")
         return cls._instance
 
     def __init__(self, demos: Dict[str, BaseDemo]):
-        if self._initialized:
-            return
         self.demos = demos
         self.active_ids = list(demos.keys())
         self._initialized = True
