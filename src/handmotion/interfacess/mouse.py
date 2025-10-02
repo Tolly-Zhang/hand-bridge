@@ -19,7 +19,7 @@ MIDDLE_FINGER_TIP = config.getint("LandmarkIndices", "MIDDLE_FINGER_TIP")
 RING_FINGER_TIP = config.getint("LandmarkIndices", "RING_FINGER_TIP")
 PINKY_TIP = config.getint("LandmarkIndices", "PINKY_TIP")
 
-class CursorInterface(BaseInterface):
+class MouseInterface(BaseInterface):
     id = "cursor"
     name = "Cursor Demo"
     hand_preference = HAND_PREFERENCE  # Preferred hand for cursor control
