@@ -1,15 +1,18 @@
 from __future__ import annotations
+
+from .config.config import config
+
 from dataclasses import dataclass
 from typing import List, Literal
 
 Handedness = Literal["Left", "Right"]
 
-WRIST = 0
-THUMB_TIP = 4
-INDEX_FINGER_TIP = 8
-MIDDLE_FINGER_TIP = 12
-RING_FINGER_TIP = 16
-PINKY_TIP = 20
+WRIST = config.getint("LandmarkIndices", "WRIST")
+THUMB_TIP = config.getint("LandmarkIndices", "THUMB_TIP")
+INDEX_FINGER_TIP = config.getint("LandmarkIndices", "INDEX_FINGER_TIP")
+MIDDLE_FINGER_TIP = config.getint("LandmarkIndices", "MIDDLE_FINGER_TIP")
+RING_FINGER_TIP = config.getint("LandmarkIndices", "RING_FINGER_TIP")
+PINKY_TIP = config.getint("LandmarkIndices", "PINKY_TIP")
 
 @dataclass(kw_only=True)
 class Landmark:
@@ -56,6 +59,9 @@ class Meta:
         assert self.height > 0, f"Height must be positive. Got {self.height} instead."
         assert self.fps_estimate >= 0, f"FPS estimate must be positive. Got {self.fps_estimate} instead."
 
+    def __str__(self):
+        return (f"  MetaData: \n    Time Stamp (ns): {self.timestamp_ns}\n    Resolution: ({self.width}, {self.height})\n    FPS Estimate: {self.fps_estimate:.2f}")
+
 @dataclass
 class FramePayload:
     meta: Meta
@@ -63,6 +69,7 @@ class FramePayload:
 
     def print_summary(self) -> None:
         print(f"Frame with {len(self.hands)} hands detected.")
+        print(self.meta)
         for hand in self.hands:
             print(f"  {hand.handedness} Hand with confidence {hand.confidence:.2f} - In Frame: {hand.in_frame}")
             for i, lm in enumerate(hand.landmarks):

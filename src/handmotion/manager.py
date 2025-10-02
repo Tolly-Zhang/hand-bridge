@@ -3,22 +3,41 @@ from .demos.base import BaseDemo
 from .payload import FramePayload
 
 class DemoManager:
+    _instance = None
+
+    def __new__(cls, demos: Dict[str, BaseDemo]):
+        if not cls._instance:
+            cls._instance = super(DemoManager, cls).__new__(cls)
+        else:
+            print("Warning: DemoManager instance already exists. Returning the existing instance.")
+        return cls._instance
+
     def __init__(self, demos: Dict[str, BaseDemo]):
         self.demos = demos
-        self.active_id = None
+        self.active_ids = list(demos.keys())
+        self._initialized = True
 
-    def set_active(self, demo_id: str) -> None:
-        if demo_id in self.demos:
-            self.active_id = demo_id
-            self.demos[demo_id].enable()
-            for k, v in self.demos.items():
-                if k != demo_id:
-                    v.disable()
-        print(f"Active demo set to: {self.active_id}")
+    @staticmethod
+    def get_instance(demos: Dict[str, BaseDemo] = None):
+        if DemoManager._instance is None:
+            if demos is None:
+                raise ValueError("DemoManager must be initialized with demos first.")
+            DemoManager(demos)
+        return DemoManager._instance
 
-    def get_active(self) -> str:
-        return self.active_id
+    def set_active(self, demo_ids: list[BaseDemo]) -> None:
+        for demo_id in demo_ids:
+            if demo_id in self.demos:
+                self.active_ids.append(demo_id)
+                self.demos[demo_id].enable()
+        for k, v in self.demos.items():
+            if k not in demo_ids:
+                v.disable()
+        print(f"Active demos set to: {self.active_ids}")
+
+    def get_active(self) -> list[str]:
+        return self.active_ids
 
     def on_frame(self, payload: FramePayload) -> None:
-        if self.active_id:
-            self.demos[self.active_id].on_frame(payload)
+        for active_id in self.active_ids:
+            self.demos[active_id].on_frame(payload)

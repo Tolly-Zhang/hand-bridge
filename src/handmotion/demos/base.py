@@ -4,7 +4,7 @@ from ..payload import FramePayload
 class BaseDemo(ABC):
     id: str  # e.g. "cursor", "swipe_scroll", "esp32_led"
     name: str
-    enabled: bool = False
+    enabled: bool = False #Used only if needed
 
     def __init__(self, context: dict) -> None:
         self.context = context

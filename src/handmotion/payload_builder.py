@@ -3,10 +3,18 @@ from .payload import FramePayload, Hand, Landmark, NormalizedLandmark, Meta
 class PayloadBuilder:
     
     @staticmethod
-    def build(meta, hands) -> FramePayload:
+    def build(frame_dimensions, time_ns, time_delta_ns, hands) -> FramePayload:
         # Convert mediapipe results to FramePayload
         # assert meta is not None, "Meta information is required to build FramePayload."
         assert hands is not None, "Hands information is required to build FramePayload."
+        
+        frame_width, frame_height = frame_dimensions[0], frame_dimensions[1]
+        fps = 1e9 / time_delta_ns if time_delta_ns > 0 else 0.0
+
+        meta = Meta(timestamp_ns=time_ns, 
+                    width=frame_width, 
+                    height=frame_height, 
+                    fps_estimate=fps)
         
         payload = FramePayload(meta=meta, hands=[])
 
