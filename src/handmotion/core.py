@@ -8,7 +8,7 @@ from .time_controller import TimeController
 from .payload_builder import PayloadBuilder
 
 from .adapters.mouse import CursorAdapter
-from .interfacess.cursor import CursorInterface
+from .interfacess.mouse import MouseInterface
 
 from cv2_enumerate_cameras import enumerate_cameras
 import keyboard
@@ -34,7 +34,7 @@ def main():
 
     mouse_controller.printRange()
 
-    cursor_demo = CursorInterface(context={"mouse_controller": mouse_controller})
+    cursor_demo = MouseInterface(context={"mouse_controller": mouse_controller})
     cursor_demo.enable()
 
     demo_manager = InterfaceManager(demos={"cursor": cursor_demo})
