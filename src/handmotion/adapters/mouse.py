@@ -5,7 +5,7 @@ class MouseController:
         self.screen_width, self.screen_height = pyautogui.size()
 
     def printRange(self) -> tuple[int, int]:
-        print(f"Screen size: width={self.screen_width}, height={self.screen_height}")
+        print(f"Screen size: ({self.screen_width}, {self.screen_height})")
         return self.screen_width, self.screen_height
 
     def get_mouse_position(self) -> tuple[int, int]:

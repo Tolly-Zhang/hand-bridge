@@ -9,13 +9,20 @@ from ..adapters.mouse import MouseController
 
 import math
 
-HAND_PREFERENCE = config.get("cursor", "HAND_PREFERENCE")
-CLICK_THRESHOLD = config.getfloat("cursor", "CLICK_THRESHOLD")
+HAND_PREFERENCE = config.get("CursorDemo", "HAND_PREFERENCE")
+CLICK_THRESHOLD = config.getfloat("CursorDemo", "CLICK_THRESHOLD")
+
+WRIST = config.getint("LandmarkIndices", "WRIST")
+THUMB_TIP = config.getint("LandmarkIndices", "THUMB_TIP")
+INDEX_FINGER_TIP = config.getint("LandmarkIndices", "INDEX_FINGER_TIP")
+MIDDLE_FINGER_TIP = config.getint("LandmarkIndices", "MIDDLE_FINGER_TIP")
+RING_FINGER_TIP = config.getint("LandmarkIndices", "RING_FINGER_TIP")
+PINKY_TIP = config.getint("LandmarkIndices", "PINKY_TIP")
 
 class CursorDemo(BaseDemo):
     id = "cursor"
     name = "Cursor Demo"
-    hand_preference = HAND_PREFERENCE  # Prefer right hand for cursor control
+    hand_preference = HAND_PREFERENCE  # Preferred hand for cursor control
 
     def __init__(self, context: dict) -> None:
         super().__init__(context)
@@ -51,18 +58,18 @@ class CursorDemo(BaseDemo):
         if not self.hand:
             print(f"Error: No {self.hand_preference} hand detected")
             return
-        self.pos_x = self.hand.landmarks[Landmark.PINKY_TIP].x_norm     # Pinky finger tip
-        self.pos_y = self.hand.landmarks[Landmark.PINKY_TIP].y_norm     # Pinky finger tip
+        self.pos_x = 1 - self.hand.landmarks[PINKY_TIP].x     # Pinky finger tip
+        self.pos_y = self.hand.landmarks[PINKY_TIP].y     # Pinky finger tip
         self.mouse.move_norm(self.pos_x, self.pos_y)
 
-        # print(f"Cursor moved to: ({self.pos_x:.2f}, {self.pos_y:.2f})")
+        print(f"Cursor moved to: ({self.pos_x:.2f}, {self.pos_y:.2f})")
 
         # Example click detection (thumb tip to index tip distance)
-        thumb_tip = self.hand.landmarks[Landmark.THUMB_TIP]
-        index_tip = self.hand.landmarks[Landmark.INDEX_TIP]
+        thumb_tip = self.hand.landmarks[THUMB_TIP]
+        index_tip = self.hand.landmarks[INDEX_FINGER_TIP]
 
-        thumb_index_dist = math.dist((thumb_tip.x_norm, thumb_tip.y_norm, thumb_tip.z_norm),
-                                     (index_tip.x_norm, index_tip.y_norm, index_tip.z_norm))
+        thumb_index_dist = math.dist((thumb_tip.x, thumb_tip.y, thumb_tip.z),
+                                     (index_tip.x, index_tip.y, index_tip.z))
 
         if thumb_index_dist < self.click_threshold:  # Arbitrary threshold for click detection
             self.mouse.click_once()
