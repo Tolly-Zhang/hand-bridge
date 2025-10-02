@@ -8,7 +8,7 @@ from .time_controller import TimeController
 from .payload_builder import PayloadBuilder
 
 from .adapters.cursor import CursorAdapter
-from .interfacess.mouse import MouseInterface
+from .interfaces.mouse import MouseInterface
 
 from cv2_enumerate_cameras import enumerate_cameras
 import keyboard
