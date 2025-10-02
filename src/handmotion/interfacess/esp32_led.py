@@ -1,7 +1,7 @@
 from .base import BaseInterface
 from ..payload import FramePayload
 
-class Esp32LedDemo(BaseInterface):
+class ESP32LEDInterface(BaseInterface):
     id = "esp32_led"
     name = "ESP32 LED Demo"
 

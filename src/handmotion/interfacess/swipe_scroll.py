@@ -1,7 +1,7 @@
-from .base import BaseInterface
+from .base import BaseDemo
 from ..payload import FramePayload
 
-class SwipeScrollDemo(BaseInterface):
+class SwipeScrollInterface(BaseDemo):
     id = "swipe_scroll"
     name = "Swipe Scroll Demo"
 

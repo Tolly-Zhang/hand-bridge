@@ -1,5 +1,5 @@
 from typing import Dict
-from .demos.base import BaseInterface
+from .interfacess.base import BaseInterface
 from .payload import FramePayload
 
 class InterfaceManager:
