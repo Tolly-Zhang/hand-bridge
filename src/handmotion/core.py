@@ -7,7 +7,7 @@ from .mediapipe import MediaPipeHands
 from .time_controller import TimeController
 from .payload_builder import PayloadBuilder
 
-from .adapters.mouse import MouseAdapter
+from .adapters.mouse import CursorAdapter
 from .interfacess.cursor import CursorInterface
 
 from cv2_enumerate_cameras import enumerate_cameras
@@ -30,7 +30,7 @@ def main():
     hands = MediaPipeHands()
     time_controller = TimeController()
 
-    mouse_controller = MouseAdapter()
+    mouse_controller = CursorAdapter()
 
     mouse_controller.printRange()
 
