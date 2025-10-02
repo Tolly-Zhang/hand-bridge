@@ -5,7 +5,7 @@ from .payload import FramePayload
 class InterfaceManager:
     _instance = None
 
-    def __new__(cls, demos: Dict[str, BaseInterface]):
+    def __new__(cls, *dargs, **kwargs):
         if not cls._instance:
             cls._instance = super(InterfaceManager, cls).__new__(cls)
         else:
