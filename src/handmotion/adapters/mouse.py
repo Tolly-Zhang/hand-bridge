@@ -1,6 +1,6 @@
 import pyautogui
 
-class MouseAdapter:
+class CursorAdapter:
     def __init__(self):
         self.screen_width, self.screen_height = pyautogui.size()
 

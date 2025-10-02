@@ -5,7 +5,7 @@ from .base import BaseInterface
 from ..payload import FramePayload
 from ..payload import Landmark
 
-from ..adapters.mouse import MouseAdapter
+from ..adapters.mouse import CursorAdapter
 
 import math
 
