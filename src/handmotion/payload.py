@@ -1,15 +1,17 @@
+from .config.config import config
+
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Literal
 
 Handedness = Literal["Left", "Right"]
 
-WRIST = 0
-THUMB_TIP = 4
-INDEX_FINGER_TIP = 8
-MIDDLE_FINGER_TIP = 12
-RING_FINGER_TIP = 16
-PINKY_TIP = 20
+WRIST = config.getint("LandmarkIndices", "WRIST")
+THUMB_TIP = config.getint("LandmarkIndices", "THUMB_TIP")
+INDEX_FINGER_TIP = config.getint("LandmarkIndices", "INDEX_FINGER_TIP")
+MIDDLE_FINGER_TIP = config.getint("LandmarkIndices", "MIDDLE_FINGER_TIP")
+RING_FINGER_TIP = config.getint("LandmarkIndices", "RING_FINGER_TIP")
+PINKY_TIP = config.getint("LandmarkIndices", "PINKY_TIP")
 
 @dataclass(kw_only=True)
 class Landmark:
