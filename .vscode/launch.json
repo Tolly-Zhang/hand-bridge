@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "HandMotion (module)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "handmotion.core",
+      "cwd": "${workspaceFolder}/src",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ]
+}
