@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "esp-32-firmware",
+			"path": "firmware/esp-32/esp-32-firmware"
+		}
+	],
+	"settings": {}
+}
