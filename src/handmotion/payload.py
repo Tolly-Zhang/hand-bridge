@@ -1,4 +1,5 @@
 from __future__ import annotations
+import math
 
 from .config.config import config
 
@@ -46,6 +47,14 @@ class Hand:
         assert len(self.landmarks) == 21, f"Hand must have exactly 21 landmarks. Got {len(self.landmarks)} instead."
         assert len(self.world_landmarks) == 21, f"Hand must have exactly 21 world landmarks. Got {len(self.world_landmarks)} instead."
         assert 0.0 <= self.confidence <= 1.0, f"Confidence must be in [0,1]. Got {self.confidence} instead."
+
+    def is_touching(self, lm1_idx: int, lm2_idx: int, threshold: float):
+        lm1 = self.world_landmarks[lm1_idx]
+        lm2 = self.world_landmarks[lm2_idx]
+        dist = math.sqrt((lm1.x - lm2.x) ** 2 + 
+                         (lm1.y - lm2.y) ** 2 + 
+                         (lm1.z - lm2.z) ** 2)
+        return dist < threshold
 
 @dataclass
 class Meta:
