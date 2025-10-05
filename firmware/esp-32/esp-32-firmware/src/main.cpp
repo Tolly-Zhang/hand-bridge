@@ -1,19 +1,30 @@
 #include <Arduino.h>
+
 const uint8_t LED_PIN = 23;
+
 void setup() {
 
-  Serial.begin(115200);
   pinMode(LED_PIN, OUTPUT);
-  Serial.println("Hello, ESP32!");
+  digitalWrite(LED_PIN, LOW);
+  Serial.begin(115200);
+
 }
 
 void loop() {
  
-  Serial.println("LED ON");
-  digitalWrite(LED_PIN, HIGH);
-  delay(3000);
-  digitalWrite(LED_PIN, LOW);
-  Serial.println("LED OFF");
-  delay(3000);
+  if (Serial.available()) {
+    String command = Serial.readStringUntil('\n');
+    command.trim();
+
+    if (command == "ON") {
+      digitalWrite(LED_PIN, HIGH);
+      Serial.println("LED is ON");
+    } else if (command == "OFF") {
+      digitalWrite(LED_PIN, LOW);
+      Serial.println("LED is OFF");
+    } else {
+      Serial.println("Unknown command. Use 'ON' or 'OFF'.");
+    }
+  }
 
 }
