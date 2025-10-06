@@ -38,14 +38,14 @@ void loop() {
     String command = io->readStringUntil('\n');
     command.trim();
 
-    if (command == "ON") {
+    if (command == "LED ON") {
       digitalWrite(LED_PIN, HIGH);
       io->println("LED is ON");
-    } else if (command == "OFF") {
+    } else if (command == "LED OFF") {
       digitalWrite(LED_PIN, LOW);
       io->println("LED is OFF");
     } else {
-      io->println("Unknown command. Use 'ON' or 'OFF'.");
+      io->println("Unknown command. Use 'LED ON' or 'LED OFF'.");
     }
   }
 

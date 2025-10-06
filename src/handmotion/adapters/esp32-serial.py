@@ -61,7 +61,7 @@ class ESP32SerialAdapter:
 # serial_test.open_serial()
 # serial_test.establish_connection()
 # while True:
-#     serial_test.write_line("ON")
+#     serial_test.write_line("LED ON")
 #     time.sleep(1)
-#     serial_test.write_line("OFF")
+#     serial_test.write_line("LED OFF")
 #     time.sleep(1)
