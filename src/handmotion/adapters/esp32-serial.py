@@ -7,7 +7,8 @@ DEFAULT_BAUD = 115200
 
 class ESP32SerialAdapter:
 
-    def __init__(self, port: str = DEFAULT_PORT, baud: int = DEFAULT_BAUD) -> None:
+    def __init__(self, name: str, port: str = DEFAULT_PORT, baud: int = DEFAULT_BAUD) -> None:
+        self.name = name
         self.port = port
         self.baud = baud
         self.serial_connection = None
@@ -50,12 +51,12 @@ class ESP32SerialAdapter:
             raise ConnectionError("Serial port is not open.")
             
         self.serial_connection.write((s + "\n").encode('utf-8'))
-        print(f"Sent: {s}")
+        print(f"Sent to {self.name}: {s}")
 
     def close(self) -> None:
         pass
 
-serial_test = ESP32SerialAdapter()
+serial_test = ESP32SerialAdapter("ESP32")
 serial_test.list_ports()
 serial_test.open_serial()
 serial_test.establish_connection()
