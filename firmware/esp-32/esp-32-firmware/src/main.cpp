@@ -1,19 +1,24 @@
 #include <Arduino.h>
+#include "BluetoothSerial.h"
+
+BluetoothSerial SerialBT;
 
 const uint8_t LED_PIN = 23;
 
-void establishSerialConnection() {
-  Serial.begin(115200);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB
-  }
-  String message = Serial.readStringUntil('\n');
+Stream* io = &SerialBT;
+
+void establishSerialConnection(Stream& s) {
+
+  s.setTimeout(2000); // Set a timeout for reading
+
+  String message = s.readStringUntil('\n');
   message.trim();
   while (message != "READY") {
-    message = Serial.readStringUntil('\n'); // wait for the "READY" message from the host
+    message = s.readStringUntil('\n'); // wait for the "READY" message from the host
+    message.trim();
   }
-  Serial.println("READY_ACK");
-    
+  s.println("READY_ACK");
+
 }
 
 void setup() {
@@ -21,24 +26,26 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
   
-  establishSerialConnection();
+  Serial.begin(115200);
+  SerialBT.begin("ESP32-BT"); // Name of your Bluetooth device
+  establishSerialConnection(SerialBT);
 
 }
 
 void loop() {
- 
-  if (Serial.available()) {
-    String command = Serial.readStringUntil('\n');
+
+  if (io->available()) {
+    String command = io->readStringUntil('\n');
     command.trim();
 
     if (command == "ON") {
       digitalWrite(LED_PIN, HIGH);
-      Serial.println("LED is ON");
+      io->println("LED is ON");
     } else if (command == "OFF") {
       digitalWrite(LED_PIN, LOW);
-      Serial.println("LED is OFF");
+      io->println("LED is OFF");
     } else {
-      Serial.println("Unknown command. Use 'ON' or 'OFF'.");
+      io->println("Unknown command. Use 'ON' or 'OFF'.");
     }
   }
 

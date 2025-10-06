@@ -2,7 +2,7 @@ import time
 import serial.tools.list_ports as lp
 import serial
 
-DEFAULT_PORT = "COM3"
+DEFAULT_PORT = "COM4"
 DEFAULT_BAUD = 115200
 
 class ESP32SerialAdapter:
@@ -43,7 +43,7 @@ class ESP32SerialAdapter:
         while response != "READY_ACK":
             response = self.serial_connection.readline().decode('utf-8').strip()
             print(f"Waiting for READY_ACK, received: {response}")
-        print("Connection established with ESP32.")
+        print("Received READY_ACK, connection established with ESP32.")
         
 
     def write_line(self, s: str) -> None:
