@@ -2,11 +2,26 @@
 
 const uint8_t LED_PIN = 23;
 
+void establishSerialConnection() {
+  Serial.begin(115200);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB
+  }
+  String message = Serial.readStringUntil('\n');
+  message.trim();
+  while (message != "READY") {
+    message = Serial.readStringUntil('\n'); // wait for the "READY" message from the host
+  }
+  Serial.println("READY_ACK");
+    
+}
+
 void setup() {
 
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
-  Serial.begin(115200);
+  
+  establishSerialConnection();
 
 }
 

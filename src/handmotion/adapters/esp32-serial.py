@@ -33,7 +33,17 @@ class ESP32SerialAdapter:
         print("Serial connection closed.")
 
     def establish_connection(self) -> None:
-        pass
+        
+        if not self.serial_connection.is_open:
+            raise ConnectionError("Serial port is not open.")
+        
+        self.write_line("READY")
+        response = self.serial_connection.readline().decode('utf-8').strip()
+        while response != "READY_ACK":
+            response = self.serial_connection.readline().decode('utf-8').strip()
+            print(f"Waiting for READY_ACK, received: {response}")
+        print("Connection established with ESP32.")
+        
 
     def write_line(self, s: str) -> None:
         if not self.serial_connection.is_open:
@@ -48,6 +58,7 @@ class ESP32SerialAdapter:
 serial_test = ESP32SerialAdapter()
 serial_test.list_ports()
 serial_test.open_serial()
+serial_test.establish_connection()
 while True:
     serial_test.write_line("ON")
     time.sleep(1)
