@@ -51,6 +51,7 @@ class ESP32SerialAdapter:
             raise ConnectionError("Serial port is not open.")
             
         self.serial_connection.write((s + "\n").encode('utf-8'))
+        self.serial_connection.flush()
         print(f"Sent to {self.name}: {s}")
 
     def close(self) -> None:
