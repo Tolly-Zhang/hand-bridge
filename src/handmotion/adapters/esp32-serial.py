@@ -54,6 +54,14 @@ class ESP32SerialAdapter:
         self.serial_connection.flush()
         print(f"Sent to {self.name}: {s}")
 
+    def read_line(self) -> str:
+        if not self.serial_connection.is_open:
+            raise ConnectionError("Serial port is not open.")
+        
+        line = self.serial_connection.readline().decode('utf-8').strip()
+        print(f"Received from {self.name}: {line}")
+        return line
+
     def close(self) -> None:
         pass
 
