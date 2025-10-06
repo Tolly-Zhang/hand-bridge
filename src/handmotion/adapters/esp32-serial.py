@@ -56,12 +56,12 @@ class ESP32SerialAdapter:
     def close(self) -> None:
         pass
 
-serial_test = ESP32SerialAdapter("ESP32")
-serial_test.list_ports()
-serial_test.open_serial()
-serial_test.establish_connection()
-while True:
-    serial_test.write_line("ON")
-    time.sleep(1)
-    serial_test.write_line("OFF")
-    time.sleep(1)
+# serial_test = ESP32SerialAdapter("ESP32")
+# serial_test.list_ports()
+# serial_test.open_serial()
+# serial_test.establish_connection()
+# while True:
+#     serial_test.write_line("ON")
+#     time.sleep(1)
+#     serial_test.write_line("OFF")
+#     time.sleep(1)
