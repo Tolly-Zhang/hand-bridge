@@ -40,7 +40,7 @@ void setup() {
 
   esc.setPeriodHertz(50);               // Set frequency to 50 Hz
   esc.attach(ESC_PIN, MIN_PW, MAX_PW);  // Attach the ESC
-  setThrottle(0);                       // Initialize throttle to 0%
+  esc.writeMicroseconds(1000);        // Initialize throttle to 0%
   
   Serial.begin(115200);
   SerialBT.begin("ESP32-BT");           // Name of your Bluetooth device
