@@ -43,3 +43,4 @@ six==1.17.0
 sounddevice==0.5.2
 sqlparse==0.5.3
 tzdata==2025.2
+pyserial==3.5
