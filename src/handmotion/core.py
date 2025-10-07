@@ -42,12 +42,16 @@ def main():
     esp32_serial_adapter.open_serial()
     esp32_serial_adapter.establish_connection()
 
+    cursor_adapter = CursorAdapter()
+
     led_interface = LEDInterface(context={"esp32_serial_adapter": esp32_serial_adapter})
     motor_interface = MotorInterface(context={"esp32_serial_adapter": esp32_serial_adapter})
+    mouse_interface = MouseInterface(context={"mouse_controller": cursor_adapter})
 
     interface_manager = InterfaceManager(demos={
         "led": led_interface,
-        "motor": motor_interface
+        "motor": motor_interface,
+        "mouse": mouse_interface
     })
 
     interface_manager.set_active(["motor"])
