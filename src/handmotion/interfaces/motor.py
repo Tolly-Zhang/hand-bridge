@@ -1,0 +1,63 @@
+import math
+from ..config.config import config
+
+from .base import BaseInterface
+from typing import Any  # Add this if you want to use Any as a placeholder
+
+from ..payload import FramePayload
+
+HAND_PREFERENCE = config.get("MotorInterface", "HAND_PREFERENCE")
+CLICK_THRESHOLD = config.getfloat("MediaPipe", "CLICK_THRESHOLD")
+
+THUMB_TIP = config.getint("LandmarkIndices", "THUMB_TIP")
+INDEX_FINGER_TIP = config.getint("LandmarkIndices", "INDEX_FINGER_TIP")
+
+class MotorInterface(BaseInterface):
+    id = "motor"
+    name = "Motor Interface"
+
+    def __init__(self, context: dict) -> None:
+        super().__init__(context)
+        self.esp32_serial_adapter = context.get("esp32_serial_adapter")
+        if not self.esp32_serial_adapter:
+            raise ValueError("MotorInterface requires 'esp32_serial_adapter' in context")
+        self.hand = None  # Currently tracked hand
+
+    def enable(self) -> None:
+        super().enable()
+        # Additional setup if needed
+
+    def disable(self) -> None:
+        super().disable()
+        # Additional teardown if needed
+
+    def on_frame(self, payload: FramePayload) -> None:
+        if not self.enabled:
+            return
+        
+        if not payload.hands:
+            # print("No hands detected")
+            return  # No hands detected
+        
+        for hand in payload.hands:
+            if hand.handedness == HAND_PREFERENCE:
+                self.hand = hand
+                break
+
+        if not self.hand:
+            print(f"Error: No {HAND_PREFERENCE} hand detected")
+            return
+        
+        wl = self.hand.world_landmarks
+        thumb_tip = wl[THUMB_TIP]
+        index_finger_tip = wl[INDEX_FINGER_TIP]
+
+        distance = math.dist((thumb_tip.x, thumb_tip.y, thumb_tip.z),
+                             (index_finger_tip.x, index_finger_tip.y, index_finger_tip.z))
+
+        speed = (distance - CLICK_THRESHOLD) / (0.15 - CLICK_THRESHOLD) * 10
+        speed = min(max(speed, 0), 10)
+        # print(f"Calculated speed: {speed:.2f}")
+        
+        command = f"THROTTLE {int(speed)}"
+        self.esp32_serial_adapter.write_line(command)

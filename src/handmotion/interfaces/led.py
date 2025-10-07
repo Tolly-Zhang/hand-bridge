@@ -36,7 +36,7 @@ class LEDInterface(BaseInterface):
         #     self.debug = config.getboolean("LEDInterface", "DEBUG")
         # except Exception:
         #     self.debug = False
-        self.debug = True
+        self.debug = False
 
     def enable(self) -> None:
         super().enable()

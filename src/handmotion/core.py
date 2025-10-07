@@ -10,6 +10,7 @@ from .calibration.calibration import Calibration
 
 from .interfaces.mouse import MouseInterface
 from .interfaces.led import LEDInterface
+from .interfaces.motor import MotorInterface
 
 from .adapters.cursor import CursorAdapter
 from .adapters.esp32_serial import ESP32SerialAdapter
@@ -42,16 +43,19 @@ def main():
     esp32_serial_adapter.establish_connection()
 
     led_interface = LEDInterface(context={"esp32_serial_adapter": esp32_serial_adapter})
+    motor_interface = MotorInterface(context={"esp32_serial_adapter": esp32_serial_adapter})
 
     interface_manager = InterfaceManager(demos={
-        "led": led_interface
+        "led": led_interface,
+        "motor": motor_interface
     })
 
-    interface_manager.set_active(["led"])
+    interface_manager.set_active(["motor"])
 
     time_controller.start()
 
     while True:
+        time.sleep(0.05)  # Small delay to prevent 100% CPU usage
         
         time_controller.update()
 

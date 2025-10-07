@@ -52,7 +52,7 @@ class ESP32SerialAdapter:
             
         self.serial_connection.write((s + "\n").encode('utf-8'))
         self.serial_connection.flush()
-        print(f"Sent to {self.name}: {s}")
+        # print(f"Sent to {self.name}: {s}")
 
     def read_line(self) -> str:
         if not self.serial_connection.is_open:
