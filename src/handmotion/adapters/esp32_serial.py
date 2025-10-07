@@ -65,7 +65,7 @@ class ESP32SerialAdapter:
     def close(self) -> None:
         pass
 
-# serial_test = ESP32SerialAdapter("ESP32")
+# serial_test = ESP32SerialAdapter("ESP32", port="COM6")
 # serial_test.list_ports()
 # serial_test.open_serial()
 # serial_test.establish_connection()
