@@ -4,10 +4,10 @@
 
 BluetoothSerial SerialBT;
 
-const uint8_t SERVO_PIN = 23;
+const uint8_t SERVO_PIN = 32;
 const int MIN_PW = 500;      // Minimum pulse width in microseconds
 const int MAX_PW = 2500;     // Maximum pulse width in microseconds
-const int NEUTRAL_PW = 1500; // Neutral pulse width in microseconds
+const int NEUTRAL_PW = 1000; // Neutral pulse width in microseconds
 
 const int ROTATE_PW = 500;   // Pulse width for rotation
 
@@ -48,7 +48,7 @@ void setup() {
   servo.writeMicroseconds(1500);             // Initialize to mid-point (neutral position)
   
   Serial.begin(115200);
-  SerialBT.begin("ESP32-BT");           // Name of your Bluetooth device
+  SerialBT.begin("ESP32-BT-2");           // Name of your Bluetooth device
   SerialBT.setPin("1234");              // Set Bluetooth PIN (optional)
   establishSerialConnection(SerialBT);
 
