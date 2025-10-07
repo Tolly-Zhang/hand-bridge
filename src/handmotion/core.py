@@ -6,6 +6,7 @@ from .camera import Camera
 from .mediapipe import MediaPipeHands
 from .time_controller import TimeController
 from .payload_builder import PayloadBuilder
+from .calibration.calibration import Calibration
 
 from .adapters.cursor import CursorAdapter
 from .interfaces.mouse import MouseInterface
