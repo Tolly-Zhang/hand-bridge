@@ -6,7 +6,7 @@ BluetoothSerial SerialBT;
 
 const uint8_t LED_PINS[4] = {23, 22, 19, 18};
 
-const uint8_t ESC_PIN = 25;
+const uint8_t ESC_PIN = 17;
 
 const int FULL_MIN_PW = 500;
 const int FULL_MAX_PW = 2500;
