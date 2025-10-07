@@ -9,8 +9,8 @@ from ..adapters.cursor import CursorAdapter
 
 import math
 
-HAND_PREFERENCE = config.get("CursorDemo", "HAND_PREFERENCE")
-CLICK_THRESHOLD = config.getfloat("CursorDemo", "CLICK_THRESHOLD")
+HAND_PREFERENCE = config.get("CursorInterface", "HAND_PREFERENCE")
+CLICK_THRESHOLD = config.getfloat("MediaPipe", "CLICK_THRESHOLD")
 
 WRIST = config.getint("LandmarkIndices", "WRIST")
 THUMB_TIP = config.getint("LandmarkIndices", "THUMB_TIP")

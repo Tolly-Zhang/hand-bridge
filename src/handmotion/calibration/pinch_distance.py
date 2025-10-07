@@ -1,5 +1,5 @@
 from typing import List
-
+import math
 from ..payload import FramePayload, Hand
 
 DEFAULT_TIME_RANGE_S = 5  # Default time range in seconds for calibration
@@ -42,9 +42,7 @@ class PinchDistanceCalibration:
         
         lm1 = hand.world_landmarks[lm1]
         lm2 = hand.world_landmarks[lm2]
-        dist = ((lm1.x - lm2.x) ** 2 + 
-                (lm1.y - lm2.y) ** 2 + 
-                (lm1.z - lm2.z) ** 2) ** 0.5
+        dist = math.dist((lm1.x, lm1.y, lm1.z), (lm2.x, lm2.y, lm2.z))
         return dist
 
     def calculate_average_pinch_distance(self, lm_index_1: int, lm_index_2: int) -> float:

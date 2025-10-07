@@ -8,8 +8,11 @@ from .time_controller import TimeController
 from .payload_builder import PayloadBuilder
 from .calibration.calibration import Calibration
 
-from .adapters.cursor import CursorAdapter
 from .interfaces.mouse import MouseInterface
+from .interfaces.led import LEDInterface
+
+from .adapters.cursor import CursorAdapter
+from .adapters.esp32_serial import ESP32SerialAdapter
 
 from cv2_enumerate_cameras import enumerate_cameras
 import keyboard
@@ -31,14 +34,20 @@ def main():
     hands = MediaPipeHands()
     time_controller = TimeController()
 
-    mouse_controller = CursorAdapter()
+    # Calibration.calibrate_pinch_distance(camera, hands, lm1=4, lm2=8, time_s=5)
 
-    mouse_controller.printRange()
+    esp32_serial_adapter = ESP32SerialAdapter(name="ESP32")
+    esp32_serial_adapter.list_ports()
+    esp32_serial_adapter.open_serial()
+    esp32_serial_adapter.establish_connection()
 
-    cursor_demo = MouseInterface(context={"mouse_controller": mouse_controller})
-    cursor_demo.enable()
+    led_interface = LEDInterface(context={"esp32_serial_adapter": esp32_serial_adapter})
 
-    demo_manager = InterfaceManager(demos={"cursor": cursor_demo})
+    interface_manager = InterfaceManager(demos={
+        "led": led_interface
+    })
+
+    interface_manager.set_active(["led"])
 
     time_controller.start()
 
@@ -58,9 +67,9 @@ def main():
                                        hands=results)
         # payload.print_summary()
 
-        # camera.show_feed()
+        camera.show_feed()
 
-        demo_manager.on_frame(payload)
+        interface_manager.on_frame(payload)
 
         # Exit on 'q' key press
         if keyboard.is_pressed('q'):
@@ -70,6 +79,7 @@ def main():
         # time.sleep(1)  # Delay for testing purposes
 
     camera.shutdown()  # Ensure camera is shutdown properly
+    esp32_serial_adapter.close_serial()
 
 if __name__ == "__main__":
     main()
