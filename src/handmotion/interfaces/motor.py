@@ -32,5 +32,5 @@ class MotorInterface(BaseInterface):
         speed = min(max(speed, 0), 10)
         
         command = f"THROTTLE {int(speed)}"
-        self.esp32_serial_adapter.write_line(command)
+        self.adapter.write_line(command)
         self.print_message(f"Sent command: {command}")

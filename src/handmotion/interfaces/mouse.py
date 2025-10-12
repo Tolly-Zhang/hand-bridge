@@ -37,11 +37,11 @@ class MouseInterface(BaseInterface):
         tracker: Landmark = self.hand_1.landmarks[TRACKER_LANDMARK]
 
         self.pos_x, self.pos_y = 1 - tracker.x, tracker.y
-        self.mouse.move_norm(self.pos_x, self.pos_y)
+        self.adapter.move_norm(self.pos_x, self.pos_y)
 
         self.print_message(f"Cursor moved to: ({self.pos_x:.2f}, {self.pos_y:.2f})")
 
         # Click Detection
         if self.hand_1.is_touching(THUMB_TIP, INDEX_FINGER_TIP):
-            self.mouse.click_once()
+            self.adapter.click_once()
             self.print_message("Click detected")
