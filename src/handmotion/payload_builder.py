@@ -3,11 +3,11 @@ from .payload import FramePayload, Hand, Landmark, NormalizedLandmark, Meta
 class PayloadBuilder:
     
     @staticmethod
-    def build(frame_dimensions, time_ns, time_delta_ns, hands) -> FramePayload:
+    def build_payload(frame_dimensions: tuple, time_ns: int, time_delta_ns: int, hands) -> FramePayload:
         # Convert mediapipe results to FramePayload
-        # assert meta is not None, "Meta information is required to build FramePayload."
-        assert hands is not None, "Hands information is required to build FramePayload."
-        
+        assert meta is not None, "PayloadBuilder: Meta information is required to build FramePayload."
+        assert hands is not None, "PayloadBuilder: Hands information is required to build FramePayload."
+
         frame_width, frame_height = frame_dimensions[0], frame_dimensions[1]
         fps = 1e9 / time_delta_ns if time_delta_ns > 0 else 0.0
 
@@ -22,15 +22,14 @@ class PayloadBuilder:
         hand_world_landmarks = hands.multi_hand_world_landmarks or []
         handedness = hands.multi_handedness or []
 
-        assert len(hand_landmarks) == len(handedness) == len(hand_world_landmarks), "Mismatch in number of detected hands."
+        assert len(hand_landmarks) == len(handedness) == len(hand_world_landmarks), "PayloadBuilder: Mismatch in number of detected hands."
 
         for i, landmarks in enumerate(hand_landmarks):
             # Get the corresponding world landmarks and handedness
             world_landmarks = hand_world_landmarks[i]
             hand_handedness = handedness[i].classification[0].label
             hand_confidence = handedness[i].classification[0].score
-
-
+            
             landmark_list = []
             world_landmark_list = []
 
