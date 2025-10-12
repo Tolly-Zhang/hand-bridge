@@ -16,12 +16,7 @@ class LEDInterface(BaseInterface):
     name = "LED Interface"
 
     def __init__(self, context: dict) -> None:
-        super().__init__(context)
-
-        self.esp32_serial_adapter = context.get("esp32_serial_adapter")
-        
-        if not self.esp32_serial_adapter:
-            raise ValueError(f"{self.name} requires 'esp32_serial_adapter' in context")
+        super().__init__(context, "esp32_serial_adapter")
 
         # Track LED states in a list for scalability
         self.led_states = [False, False, False, False]
@@ -50,7 +45,7 @@ class LEDInterface(BaseInterface):
                 # Toggle LED state
                 self.led_states[i] = not self.led_states[i]
                 cmd = f"LED {'H' if self.led_states[i] else 'L'} {i}"
-                self.esp32_serial_adapter.write_line(cmd)
+                self.adapter.write_line(cmd)
 
                 self.print_message(f"Pinch detected on finger {i}. Sent: {cmd}")
 

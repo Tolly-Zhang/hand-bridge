@@ -16,12 +16,7 @@ class MotorInterface(BaseInterface):
     name = "Motor Interface"
 
     def __init__(self, context: dict) -> None:
-        super().__init__(context)
-
-        self.esp32_serial_adapter = context.get("esp32_serial_adapter")
-        
-        if not self.esp32_serial_adapter:
-            raise ValueError(f"{self.name} requires 'esp32_serial_adapter' in context")
+        super().__init__(context, "esp32_serial_adapter")
 
     def on_frame(self, payload: FramePayload) -> None:
         

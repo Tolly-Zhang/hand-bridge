@@ -22,12 +22,7 @@ class MouseInterface(BaseInterface):
     hand_preference = HAND_PREFERENCE  # Preferred hand for cursor control
 
     def __init__(self, context: dict) -> None:
-        super().__init__(context)
-
-        self.mouse: CursorAdapter = context.get("mouse_controller")
-        
-        if not self.mouse:
-            raise ValueError(f"{self.name} requires 'mouse_controller' in context")
+        super().__init__(context, "mouse_controller")
         
         self.pos_x, self.pos_y = 0.5, 0.5  # Start in the center of the screen
 

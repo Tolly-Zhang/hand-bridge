@@ -11,8 +11,12 @@ class BaseInterface(ABC):
     name: str
     enabled: bool
 
-    def __init__(self, context: dict) -> None:
+    def __init__(self, context: dict, adapter: str) -> None:
         self.context = context
+        self.adapter = context.get(adapter)
+        if not self.adapter:
+            raise ValueError(f"{self.name} requires '{adapter}' in context")
+
         self.hand = None
         self.enabled = False
 

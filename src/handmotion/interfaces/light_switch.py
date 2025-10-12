@@ -14,12 +14,7 @@ class LightInterface(BaseInterface):
     name = "Light Interface"
 
     def __init__(self, context: dict) -> None:
-        super().__init__(context)
-
-        self.esp32_serial_adapter = context.get("esp32_serial_adapter")
-        if not self.esp32_serial_adapter:
-
-            raise ValueError(f"{self.name} requires 'esp32_serial_adapter' in context")
+        super().__init__(context, "esp32_serial_adapter")
 
         self.pinch_state = False  # Track whether a pinch is currently active
 
@@ -36,5 +31,5 @@ class LightInterface(BaseInterface):
 
         if is_pinch != self.pinch_state:
             self.pinch_state = is_pinch
-            self.esp32_serial_adapter.write_line("LIGHT TOGGLE")
+            self.adapter.write_line("LIGHT TOGGLE")
             self.print_message("Pinch detected - Toggled Light")
