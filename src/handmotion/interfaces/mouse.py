@@ -1,10 +1,10 @@
-from .interface_common import config, BaseInterface, FramePayload
+from .interface_common import config, BaseInterface, FramePayload, get_hand_preference
 
 from ..adapters.cursor import CursorAdapter
 
 from ..payload import Landmark
 
-HAND_PREFERENCE = config.get("CursorInterface", "HAND_PREFERENCE")
+HAND_PREFERENCE = get_hand_preference("CursorInterface")
 
 THUMB_TIP = config.getint("LandmarkIndices", "THUMB_TIP")
 INDEX_FINGER_TIP = config.getint("LandmarkIndices", "INDEX_FINGER_TIP")

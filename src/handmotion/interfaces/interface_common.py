@@ -3,3 +3,6 @@ from .base import BaseInterface
 from ..payload import FramePayload
 
 __all__ = ["config", "BaseInterface", "FramePayload"]
+
+def get_hand_preference(interface: str) -> str:
+    return config.get({interface}, "HAND_PREFERENCE")

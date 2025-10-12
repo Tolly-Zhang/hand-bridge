@@ -1,8 +1,8 @@
-from .interface_common import config, BaseInterface, FramePayload
+from .interface_common import config, BaseInterface, FramePayload, get_hand_preference
 
 from ..adapters.esp32_serial import ESP32SerialAdapter
 
-HAND_PREFERENCE = config.get("MotorInterface", "HAND_PREFERENCE")
+HAND_PREFERENCE = get_hand_preference("MotorInterface")
 CLICK_THRESHOLD = config.getfloat("MediaPipe", "CLICK_THRESHOLD")
 
 THUMB_TIP = config.getint("LandmarkIndices", "THUMB_TIP")
