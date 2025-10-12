@@ -3,8 +3,9 @@ from .config.config import config
 import cv2
 
 DEFAULT_CAMERA_INDEX = config.getint("Camera", "INDEX")
-
 DEFAULT_CAMERA_RESOLUTION = (config.getint("Camera", "RESOLUTION_X"), config.getint("Camera", "RESOLUTION_Y"))
+DEFAULT_CAMERA_FPS = config.getint("Camera", "FPS")
+DEFAULT_WINDOW_NAME = config.get("Camera", "WINDOW_NAME")
 
 class Camera:
     """Singleton class to manage camera access."""
@@ -25,7 +26,7 @@ class Camera:
         if not self.cap.isOpened():
             raise RuntimeError(f"Could not open camera with index {camera_index}.")
 
-        print(f"Camera initialized with index {camera_index} at resolution {width}x{height}.")
+        print(f"Camera initialized with index {camera_index} at resolution {width}x{height}")
     
     def read(self):
         ret, self.frame_bgr = self.cap.read()
@@ -44,7 +45,7 @@ class Camera:
     def get_frame_dimensions(self):
         return (self.frame_rgb.shape[1], self.frame_rgb.shape[0])
 
-    def show_feed(self, window_name="Camera Feed", wait_key=1):
+    def show_feed(self, window_name=DEFAULT_WINDOW_NAME, wait_key=1):
         cv2.imshow(window_name, self.frame_bgr)
         cv2.waitKey(wait_key)
 
