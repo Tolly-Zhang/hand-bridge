@@ -1,9 +1,10 @@
 from ..config.config import config
 
 from .base import BaseInterface
-from typing import Any  # Add this if you want to use Any as a placeholder
 
 from ..payload import FramePayload
+
+from ..adapters.esp32_serial import ESP32SerialAdapter
 
 HAND_PREFERENCE = config.get("MotorInterface", "HAND_PREFERENCE")
 CLICK_THRESHOLD = config.getfloat("MediaPipe", "CLICK_THRESHOLD")
@@ -16,7 +17,7 @@ class MotorInterface(BaseInterface):
     name = "Motor Interface"
 
     def __init__(self, context: dict) -> None:
-        super().__init__(context, "esp32_serial_adapter")
+        super().__init__(context, "esp32_serial_adapter", ESP32SerialAdapter)
 
     def on_frame(self, payload: FramePayload) -> None:
         

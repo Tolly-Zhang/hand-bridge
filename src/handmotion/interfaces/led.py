@@ -3,6 +3,8 @@ from ..config.config import config
 from .base import BaseInterface
 from ..payload import FramePayload
 
+from ..adapters.esp32_serial import ESP32SerialAdapter
+
 HAND_PREFERENCE = config.get("LEDInterface", "HAND_PREFERENCE")
 
 THUMB_TIP = config.getint("LandmarkIndices", "THUMB_TIP")
@@ -16,7 +18,7 @@ class LEDInterface(BaseInterface):
     name = "LED Interface"
 
     def __init__(self, context: dict) -> None:
-        super().__init__(context, "esp32_serial_adapter")
+        super().__init__(context, "esp32_serial_adapter", ESP32SerialAdapter)
 
         # Track LED states in a list for scalability
         self.led_states = [False, False, False, False]

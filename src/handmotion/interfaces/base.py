@@ -6,16 +6,24 @@ from ..payload import FramePayload
 INTERFACE_NAME_LENGTH = config.getint("DefaultInterface", "NAME_LENGTH")
 DEBUG = config.getboolean("DEFAULT", "DEBUG")
 
+
 class BaseInterface(ABC):
-    id: str  # e.g. "cursor", "swipe_scroll", "esp32_led"
+    id: str
     name: str
     enabled: bool
 
-    def __init__(self, context: dict, adapter: str) -> None:
+    def __init__(self, context: dict, adapter_name: str = None, adapter_type: type = None) -> None:
         self.context = context
-        self.adapter = context.get(adapter)
-        if not self.adapter:
-            raise ValueError(f"{self.name} requires '{adapter}' in context")
+        self.adapter = None
+
+        if adapter_name:
+            self.adapter = context.get(adapter_name)
+
+            if not self.adapter:
+                raise ValueError(f"{self.name} requires '{adapter_name}' in context")
+            
+            if adapter_type and not isinstance(self.adapter, adapter_type):
+                raise TypeError(f"{self.name} requires '{adapter_name}' to be a {adapter_type.__name__}")
 
         self.hand_1 = None
         self.enabled = False

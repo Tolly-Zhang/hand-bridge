@@ -7,8 +7,6 @@ from ..payload import Landmark
 
 from ..adapters.cursor import CursorAdapter
 
-import math
-
 HAND_PREFERENCE = config.get("CursorInterface", "HAND_PREFERENCE")
 CLICK_THRESHOLD = config.getfloat("MediaPipe", "CLICK_THRESHOLD")
 
@@ -22,8 +20,8 @@ class MouseInterface(BaseInterface):
     hand_preference = HAND_PREFERENCE  # Preferred hand for cursor control
 
     def __init__(self, context: dict) -> None:
-        super().__init__(context, "mouse_controller")
-        
+        super().__init__(context, "mouse_controller", CursorAdapter)
+
         self.pos_x, self.pos_y = 0.5, 0.5  # Start in the center of the screen
 
     def on_frame(self, payload: FramePayload) -> None:
