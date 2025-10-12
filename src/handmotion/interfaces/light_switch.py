@@ -31,19 +31,10 @@ class LightInterface(BaseInterface):
 
     def on_frame(self, payload: FramePayload) -> None:
 
-        if not self.enabled:
-            return
-
         if DEBUG:
             print("[LightInterface] on_frame called")
 
-        # Reset selected hand each frame to avoid using stale references
-        self.hand = None
-
-        if not payload.hands:
-            if DEBUG:
-                print("[LEDInterface] No hands detected")
-            return  # No hands detected
+        super().on_frame(payload)
 
         for hand in payload.hands:
             if hand.handedness == HAND_PREFERENCE:

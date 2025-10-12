@@ -25,13 +25,9 @@ class MotorInterface(BaseInterface):
         self.hand = None  # Currently tracked hand
 
     def on_frame(self, payload: FramePayload) -> None:
-        if not self.enabled:
-            return
         
-        if not payload.hands:
-            # print("No hands detected")
-            return  # No hands detected
-        
+        super().on_frame(payload)
+
         for hand in payload.hands:
             if hand.handedness == HAND_PREFERENCE:
                 self.hand = hand
