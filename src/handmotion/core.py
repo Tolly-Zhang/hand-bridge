@@ -48,7 +48,7 @@ def main():
     motor_interface = MotorInterface(context={"esp32_serial_adapter": esp32_serial_adapter})
     mouse_interface = MouseInterface(context={"mouse_controller": cursor_adapter})
 
-    interface_manager = InterfaceManager(demos={
+    interface_manager = InterfaceManager(interfaces={
         "led": led_interface,
         "motor": motor_interface,
         "mouse": mouse_interface

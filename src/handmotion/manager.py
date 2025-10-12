@@ -9,35 +9,41 @@ class InterfaceManager:
         if not cls._instance:
             cls._instance = super(InterfaceManager, cls).__new__(cls)
         else:
-            print("Warning: DemoManager instance already exists. Returning the existing instance.")
+            print("Warning: InterfaceManager instance already exists. Returning the existing instance.")
         return cls._instance
 
-    def __init__(self, demos: Dict[str, BaseInterface]):
-        self.demos = demos
-        self.active_ids = list(demos.keys())
+    def __init__(self, interfaces: Dict[str, BaseInterface]):
+        self.interfaces = interfaces
+        self.active_ids = list(interfaces.keys())
         self._initialized = True
 
-    @staticmethod
-    def get_instance(demos: Dict[str, BaseInterface] = None):
-        if InterfaceManager._instance is None:
-            if demos is None:
-                raise ValueError("DemoManager must be initialized with demos first.")
-            InterfaceManager(demos)
-        return InterfaceManager._instance
+    def activate_all(self) -> None:
+        for interface in self.interfaces.values():
+            interface.enable()
+        self.active_ids = list(self.interfaces.keys())
+        print("All interfaces activated")
 
-    def set_active(self, demo_ids: list[BaseInterface]) -> None:
-        for demo_id in demo_ids:
-            if demo_id in self.demos:
-                self.active_ids.append(demo_id)
-                self.demos[demo_id].enable()
-        for k, v in self.demos.items():
-            if k not in demo_ids:
-                v.disable()
-        print(f"Active demos set to: {self.active_ids}")
+    def deactivate_all(self) -> None:
+        for interface in self.interfaces.values():
+            interface.disable()
+        self.active_ids = []
+        print("All interfaces deactivated")
+    
+    def set_active(self, interface_ids: list[BaseInterface]) -> None:
+        for interface_id in interface_ids:
+            if interface_id in self.interfaces:
+                self.active_ids.append(interface_id)
+                self.interfaces[interface_id].enable()
 
-    def get_active(self) -> list[str]:
+        for name, interface in self.interfaces.items():
+            if name not in interface_ids:
+                interface.disable()
+            
+        print(f"Active interfaces set to: {self.active_ids}")
+
+    def get_active_interfaces(self) -> list[str]:
         return self.active_ids
 
     def on_frame(self, payload: FramePayload) -> None:
         for active_id in self.active_ids:
-            self.demos[active_id].on_frame(payload)
+            self.interfaces[active_id].on_frame(payload)
