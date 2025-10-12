@@ -20,18 +20,9 @@ import keyboard
 import time
 
 def main():
-    # List available cameras
-    cameras = list(enumerate_cameras())
-    if not cameras:
-        print("No cameras found.")
-        return
-    for camera_info in cameras:
-        print(f"{camera_info.index}: {camera_info.name}")
-
-    camera_index = int(input("Enter camera index: "))
 
     # Initialize Camera, MediaPipeHands, TimeController, DemoManager instance
-    camera = Camera(camera_index=camera_index)
+    camera = Camera()
     hands = MediaPipeHands()
     time_controller = TimeController()
 

@@ -5,6 +5,7 @@ from cv2_enumerate_cameras import enumerate_cameras
 import numpy as np
 
 DEFAULT_CAMERA_INDEX = config.getint("Camera", "INDEX")
+ASK_FOR_CAMERA_INDEX = config.getboolean("Camera", "ASK_FOR_INDEX")
 DEFAULT_CAMERA_RESOLUTION = (config.getint("Camera", "RESOLUTION_X"), config.getint("Camera", "RESOLUTION_Y"))
 DEFAULT_CAMERA_FPS = config.getint("Camera", "FPS")
 DEFAULT_WINDOW_NAME = config.get("Camera", "WINDOW_NAME")
@@ -21,6 +22,9 @@ class Camera:
         return cls._instance
 
     def __init__(self, camera_index=DEFAULT_CAMERA_INDEX, width=DEFAULT_CAMERA_RESOLUTION[0], height=DEFAULT_CAMERA_RESOLUTION[1]):
+        if ASK_FOR_CAMERA_INDEX:
+            self.print_cameras()
+            camera_index = int(input(f"Enter camera index [{camera_index}]: ") or camera_index)
         self.cap = cv2.VideoCapture(camera_index)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
@@ -39,7 +43,7 @@ class Camera:
         
         print("Available cameras:")
         for camera_info in cameras:
-            print(f"  Index: {camera_info.index}, Name: {camera_info.name}")
+            print(f"  {camera_info.index:>4} | {camera_info.name}")
 
     def read(self) -> None:
         ret, self.frame_bgr = self.cap.read()
