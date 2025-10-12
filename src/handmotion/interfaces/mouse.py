@@ -14,7 +14,7 @@ CLICK_THRESHOLD = config.getfloat("MediaPipe", "CLICK_THRESHOLD")
 
 THUMB_TIP = config.getint("LandmarkIndices", "THUMB_TIP")
 INDEX_FINGER_TIP = config.getint("LandmarkIndices", "INDEX_FINGER_TIP")
-PINKY_TIP = config.getint("LandmarkIndices", "PINKY_TIP")
+TRACKER_LANDMARK = config.getint("CursorInterface", "TRACKER_LANDMARK")
 
 class MouseInterface(BaseInterface):
     id = "cursor"
@@ -59,7 +59,7 @@ class MouseInterface(BaseInterface):
             print(f"Error: No {self.hand_preference} hand detected")
             return
 
-        tracker: Landmark = self.hand.landmarks[PINKY_TIP]
+        tracker: Landmark = self.hand.landmarks[TRACKER_LANDMARK]
 
         self.pos_x, self.pos_y = 1 - tracker.x, tracker.y
         self.mouse.move_norm(self.pos_x, self.pos_y)
