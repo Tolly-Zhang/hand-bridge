@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from ..payload import FramePayload
 
 INTERFACE_NAME_LENGTH = config.getint("DefaultInterface", "NAME_LENGTH")
+DEBUG = config.getboolean("DEFAULT", "DEBUG")
 
 class BaseInterface(ABC):
     id: str  # e.g. "cursor", "swipe_scroll", "esp32_led"
@@ -17,19 +18,38 @@ class BaseInterface(ABC):
 
     def enable(self) -> None:
         self.enabled = True
-        print(f"{self.name:<{INTERFACE_NAME_LENGTH}} Enabled")
+        self.print_message("Enabled")
 
     def disable(self) -> None:
         self.enabled = False
-        print(f"{self.name:<{INTERFACE_NAME_LENGTH}} Disabled")
+        self.print_message("Disabled")
+
+    def print_message(self, message: str) -> None:
+        if DEBUG:
+            print(f"[{self.name}] {message}")
 
     @abstractmethod
-    def on_frame(self, payload: FramePayload) -> None:
+    def on_frame(self, payload: FramePayload) -> bool:
+
+        self.print_message("on_frame called")
+
         if not self.enabled:
-            return
+            return False
         
         self.hand = None
 
         if not payload.hands:
-            return  # No hands detected
+            self.print_message("No Hands Detected")
+            return False  # No hands detected
         # To be implemented by subclasses
+
+    def find_hand(self, payload: FramePayload, preference: str) -> None:
+        for hand in payload.hands:
+            if hand.handedness == preference: 
+                self.hand = hand
+                break
+
+        if not self.hand:
+            self.print_message(f"No {preference} hand detected")
+            return False
+        return True

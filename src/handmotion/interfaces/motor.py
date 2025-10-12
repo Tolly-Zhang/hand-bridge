@@ -26,15 +26,10 @@ class MotorInterface(BaseInterface):
 
     def on_frame(self, payload: FramePayload) -> None:
         
-        super().on_frame(payload)
+        if not super().on_frame(payload):
+            return
 
-        for hand in payload.hands:
-            if hand.handedness == HAND_PREFERENCE:
-                self.hand = hand
-                break
-
-        if not self.hand:
-            print(f"Error: No {HAND_PREFERENCE} hand detected")
+        if not super().find_hand(payload, HAND_PREFERENCE):
             return
 
         distance = self.hand.calculate_xyz_distance(THUMB_TIP, INDEX_FINGER_TIP)

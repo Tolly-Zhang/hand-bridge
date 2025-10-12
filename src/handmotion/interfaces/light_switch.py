@@ -31,19 +31,10 @@ class LightInterface(BaseInterface):
 
     def on_frame(self, payload: FramePayload) -> None:
 
-        if DEBUG:
-            print("[LightInterface] on_frame called")
+        if not super().on_frame(payload):
+            return
 
-        super().on_frame(payload)
-
-        for hand in payload.hands:
-            if hand.handedness == HAND_PREFERENCE:
-                self.hand = hand
-                break
-
-        if not self.hand:
-            if DEBUG:
-                print(f"[LEDInterface] No {HAND_PREFERENCE} hand detected this frame")
+        if not super().find_hand(payload, HAND_PREFERENCE):
             return
 
         # Compute distances

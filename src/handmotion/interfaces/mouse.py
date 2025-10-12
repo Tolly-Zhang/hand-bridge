@@ -37,15 +37,10 @@ class MouseInterface(BaseInterface):
 
     def on_frame(self, payload: FramePayload) -> None:
 
-        super().on_frame(payload)
+        if not super().on_frame(payload):
+            return
 
-        for hand in payload.hands:
-            if hand.handedness == self.hand_preference:
-                self.hand = hand
-                break
-        
-        if not self.hand:
-            print(f"Error: No {self.hand_preference} hand detected")
+        if not super().find_hand(payload, HAND_PREFERENCE):
             return
 
         tracker: Landmark = self.hand.landmarks[TRACKER_LANDMARK]
