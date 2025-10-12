@@ -1,4 +1,4 @@
-from .interface_dep import config, BaseInterface, FramePayload
+from .interface_common import config, BaseInterface, FramePayload
 
 from ..adapters.esp32_serial import ESP32SerialAdapter
 
