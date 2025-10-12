@@ -1,7 +1,6 @@
 from .config.config import config
 
 import mediapipe as mp
-import time
 
 STATIC_IMAGE_MODE = config.getboolean("MediaPipe", "STATIC_IMAGE_MODE")
 MAX_NUM_HANDS = config.getint("MediaPipe", "MAX_NUM_HANDS")
@@ -48,10 +47,3 @@ class MediaPipeHands:
                     mp.solutions.hands.HAND_CONNECTIONS
                 )
         return image
-
-    def process_sync_with_time_ns(self, image):
-        start_ns = time.time_ns()
-        self.results = self.hands.process(image)
-        end_ns = time.time_ns()
-        processing_time = 1e-9 * (end_ns - start_ns)
-        return self.results, processing_time
