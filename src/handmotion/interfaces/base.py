@@ -17,7 +17,7 @@ class BaseInterface(ABC):
         if not self.adapter:
             raise ValueError(f"{self.name} requires '{adapter}' in context")
 
-        self.hand = None
+        self.hand_1 = None
         self.enabled = False
 
     def enable(self) -> None:
@@ -38,7 +38,7 @@ class BaseInterface(ABC):
         if not self.enabled:
             return False
         
-        self.hand = None
+        self.hand_1 = None
 
         if not payload.hands:
             self.print_message("No Hands Detected")
@@ -49,10 +49,10 @@ class BaseInterface(ABC):
     def find_hand(self, payload: FramePayload, preference: str) -> None:
         for hand in payload.hands:
             if hand.handedness == preference: 
-                self.hand = hand
+                self.hand_1 = hand
                 break
 
-        if not self.hand:
+        if not self.hand_1:
             self.print_message(f"No {preference} hand detected")
             return False
         return True

@@ -26,7 +26,7 @@ class MotorInterface(BaseInterface):
         if not super().find_hand(payload, HAND_PREFERENCE):
             return
 
-        distance = self.hand.calculate_xyz_distance(THUMB_TIP, INDEX_FINGER_TIP)
+        distance = self.hand_1.calculate_xyz_distance(THUMB_TIP, INDEX_FINGER_TIP)
 
         speed = (distance - CLICK_THRESHOLD) / (0.15 - CLICK_THRESHOLD) * 10
         speed = min(max(speed, 0), 10)

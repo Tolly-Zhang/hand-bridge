@@ -32,10 +32,10 @@ class LEDInterface(BaseInterface):
             return
 
         self.pinch_active = [
-            self.hand.is_touching(THUMB_TIP, INDEX_FINGER_TIP),
-            self.hand.is_touching(THUMB_TIP, MIDDLE_FINGER_TIP),
-            self.hand.is_touching(THUMB_TIP, RING_FINGER_TIP),
-            self.hand.is_touching(THUMB_TIP, PINKY_TIP)
+            self.hand_1.is_touching(THUMB_TIP, INDEX_FINGER_TIP),
+            self.hand_1.is_touching(THUMB_TIP, MIDDLE_FINGER_TIP),
+            self.hand_1.is_touching(THUMB_TIP, RING_FINGER_TIP),
+            self.hand_1.is_touching(THUMB_TIP, PINKY_TIP)
         ]
 
         for i, is_pinch in enumerate(self.pinch_active):

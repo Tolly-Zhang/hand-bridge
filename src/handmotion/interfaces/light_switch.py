@@ -27,7 +27,7 @@ class LightInterface(BaseInterface):
             return
 
         # Compute distances
-        is_pinch = self.hand.is_touching(THUMB_TIP, INDEX_FINGER_TIP)
+        is_pinch = self.hand_1.is_touching(THUMB_TIP, INDEX_FINGER_TIP)
 
         if is_pinch != self.pinch_state:
             self.pinch_state = is_pinch
