@@ -4,7 +4,6 @@ from .base import BaseInterface
 from ..payload import FramePayload
 
 HAND_PREFERENCE = config.get("LEDInterface", "HAND_PREFERENCE")
-CLICK_THRESHOLD = config.getfloat("MediaPipe", "CLICK_THRESHOLD")
 
 THUMB_TIP = config.getint("LandmarkIndices", "THUMB_TIP")
 INDEX_FINGER_TIP = config.getint("LandmarkIndices", "INDEX_FINGER_TIP")
@@ -29,8 +28,6 @@ class LEDInterface(BaseInterface):
         # Track whether a pinch is currently active (for edge detection)
         self.pinch_active = [False, False, False, False]
 
-        self.click_threshold = CLICK_THRESHOLD  # Distance threshold for click detection
-
     def on_frame(self, payload: FramePayload) -> None:
 
         if not super().on_frame(payload):
@@ -39,21 +36,17 @@ class LEDInterface(BaseInterface):
         if not super().find_hand(payload, HAND_PREFERENCE):
             return
 
-        # Compute distances
-        distances = [
-            self.hand.calculate_xyz_distance(THUMB_TIP, INDEX_FINGER_TIP),
-            self.hand.calculate_xyz_distance(THUMB_TIP, MIDDLE_FINGER_TIP),
-            self.hand.calculate_xyz_distance(THUMB_TIP, RING_FINGER_TIP),
-            self.hand.calculate_xyz_distance(THUMB_TIP, PINKY_TIP)
+        self.pinch_active = [
+            self.hand.is_touching(THUMB_TIP, INDEX_FINGER_TIP),
+            self.hand.is_touching(THUMB_TIP, MIDDLE_FINGER_TIP),
+            self.hand.is_touching(THUMB_TIP, RING_FINGER_TIP),
+            self.hand.is_touching(THUMB_TIP, PINKY_TIP)
         ]
 
-        self.print_message("Distances:", ", ".join(f"{d:.4f}" for d in distances))
-
-        for i, dist in enumerate(distances):
-            is_pinch = dist < self.click_threshold
+        for i, is_pinch in enumerate(self.pinch_active):
 
             # Edge detection: trigger only when going from not-pinched to pinched
-            if is_pinch and not self.pinch_active[i]:
+            if is_pinch != self.pinch_active[i]:
                 # Toggle LED state
                 self.led_states[i] = not self.led_states[i]
                 cmd = f"LED {'H' if self.led_states[i] else 'L'} {i}"

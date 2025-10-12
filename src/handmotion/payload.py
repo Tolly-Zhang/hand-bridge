@@ -15,6 +15,8 @@ MIDDLE_FINGER_TIP = config.getint("LandmarkIndices", "MIDDLE_FINGER_TIP")
 RING_FINGER_TIP = config.getint("LandmarkIndices", "RING_FINGER_TIP")
 PINKY_TIP = config.getint("LandmarkIndices", "PINKY_TIP")
 
+CLICK_THRESHOLD = config.getfloat("MediaPipe", "CLICK_THRESHOLD")
+
 @dataclass(kw_only=True)
 class Landmark:
     x: float
@@ -67,7 +69,7 @@ class Hand:
                          (lm1.y - lm2.y) ** 2 + 
                          (lm1.z - lm2.z) ** 2)
     
-    def is_touching(self, lm1_idx: int, lm2_idx: int, threshold: float):
+    def is_touching(self, lm1_idx: int, lm2_idx: int, threshold: float = CLICK_THRESHOLD) -> bool:
         distance = self.calculate_xy_distance(lm1_idx, lm2_idx)
         return distance < threshold
 

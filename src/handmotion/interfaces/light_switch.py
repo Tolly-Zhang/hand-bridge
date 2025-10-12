@@ -4,12 +4,9 @@ from .base import BaseInterface
 from ..payload import FramePayload
 
 HAND_PREFERENCE = config.get("LEDInterface", "HAND_PREFERENCE")
-CLICK_THRESHOLD = config.getfloat("MediaPipe", "CLICK_THRESHOLD")
 
 THUMB_TIP = config.getint("LandmarkIndices", "THUMB_TIP")
 INDEX_FINGER_TIP = config.getint("LandmarkIndices", "INDEX_FINGER_TIP")
-MIDDLE_FINGER_TIP = config.getint("LandmarkIndices", "MIDDLE_FINGER_TIP")
-RING_FINGER_TIP = config.getint("LandmarkIndices", "RING_FINGER_TIP")
 PINKY_TIP = config.getint("LandmarkIndices", "PINKY_TIP")
 
 class LightInterface(BaseInterface):
@@ -24,8 +21,6 @@ class LightInterface(BaseInterface):
 
             raise ValueError(f"{self.name} requires 'esp32_serial_adapter' in context")
 
-        self.click_threshold = CLICK_THRESHOLD  # Distance threshold for click detection
-
         self.pinch_state = False  # Track whether a pinch is currently active
 
     def on_frame(self, payload: FramePayload) -> None:
@@ -37,11 +32,7 @@ class LightInterface(BaseInterface):
             return
 
         # Compute distances
-        dist = self.hand.calculate_xyz_distance(THUMB_TIP, INDEX_FINGER_TIP)
-
-        self.print_message("Distances:", f"{dist:.4f}")
-
-        is_pinch = dist < self.click_threshold
+        is_pinch = self.hand.is_touching(THUMB_TIP, INDEX_FINGER_TIP)
 
         if is_pinch != self.pinch_state:
             self.pinch_state = is_pinch
