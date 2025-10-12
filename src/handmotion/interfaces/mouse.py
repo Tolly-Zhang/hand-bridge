@@ -1,4 +1,11 @@
-from .interface_common import config, BaseInterface, FramePayload, get_hand_preference
+from .interface_common import (
+    config,
+    BaseInterface,
+    FramePayload,
+    get_hand_preference,
+    get_thumb_tip_index,
+    get_index_finger_tip_index,
+)
 
 from ..adapters.cursor import CursorAdapter
 
@@ -6,8 +13,8 @@ from ..payload import Landmark
 
 HAND_PREFERENCE = get_hand_preference("CursorInterface")
 
-THUMB_TIP = config.getint("LandmarkIndices", "THUMB_TIP")
-INDEX_FINGER_TIP = config.getint("LandmarkIndices", "INDEX_FINGER_TIP")
+THUMB_TIP = get_thumb_tip_index()
+INDEX_FINGER_TIP = get_index_finger_tip_index()
 TRACKER_LANDMARK = config.getint("CursorInterface", "TRACKER_LANDMARK")
 
 class MouseInterface(BaseInterface):

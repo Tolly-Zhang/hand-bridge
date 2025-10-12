@@ -1,12 +1,20 @@
-from .interface_common import config, BaseInterface, FramePayload, get_hand_preference
+from .interface_common import (
+    # config,
+    BaseInterface,
+    FramePayload,
+    get_hand_preference,
+    get_thumb_tip_index,
+    get_index_finger_tip_index,
+    get_pinky_tip_index,
+)
 
 from ..adapters.esp32_serial import ESP32SerialAdapter
 
 HAND_PREFERENCE = get_hand_preference("LEDInterface")
 
-THUMB_TIP = config.getint("LandmarkIndices", "THUMB_TIP")
-INDEX_FINGER_TIP = config.getint("LandmarkIndices", "INDEX_FINGER_TIP")
-PINKY_TIP = config.getint("LandmarkIndices", "PINKY_TIP")
+THUMB_TIP = get_thumb_tip_index()
+INDEX_FINGER_TIP = get_index_finger_tip_index()
+PINKY_TIP = get_pinky_tip_index()
 
 class LightInterface(BaseInterface):
     id = "light"
