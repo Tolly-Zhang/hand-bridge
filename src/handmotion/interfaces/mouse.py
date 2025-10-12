@@ -19,8 +19,8 @@ INDEX_FINGER_TIP = config.getint("LandmarkIndices", "INDEX_FINGER_TIP")
 TRACKER_LANDMARK = config.getint("CursorInterface", "TRACKER_LANDMARK")
 
 class MouseInterface(BaseInterface):
-    id = "cursor"
-    name = "Cursor Demo"
+    id = "mouse"
+    name = "Mouse Interface"
     hand_preference = HAND_PREFERENCE  # Preferred hand for cursor control
 
     def __init__(self, context: dict) -> None:
@@ -29,7 +29,7 @@ class MouseInterface(BaseInterface):
         self.mouse: CursorAdapter = context.get("mouse_controller")
         
         if not self.mouse:
-            raise ValueError("CursorDemo requires 'mouse_controller' in context")
+            raise ValueError("Mouse Interface requires 'mouse_controller' in context")
         
         self.hand = None  # Currently tracked hand
         self.pos_x, self.pos_y = 0.5, 0.5  # Start in the center of the screen
