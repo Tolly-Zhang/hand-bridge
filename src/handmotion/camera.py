@@ -1,6 +1,8 @@
 from .config.config import config
 
 import cv2
+from cv2_enumerate_cameras import enumerate_cameras
+import numpy as np
 
 DEFAULT_CAMERA_INDEX = config.getint("Camera", "INDEX")
 DEFAULT_CAMERA_RESOLUTION = (config.getint("Camera", "RESOLUTION_X"), config.getint("Camera", "RESOLUTION_Y"))
@@ -27,8 +29,19 @@ class Camera:
             raise RuntimeError(f"Could not open camera with index {camera_index}.")
 
         print(f"Camera initialized with index {camera_index} at resolution {width}x{height}")
-    
-    def read(self):
+
+    def print_cameras(self) -> None:
+        cameras = list(enumerate_cameras())
+
+        if not cameras:
+            print("No cameras found.")
+            return
+        
+        print("Available cameras:")
+        for camera_info in cameras:
+            print(f"  Index: {camera_info.index}, Name: {camera_info.name}")
+
+    def read(self) -> None:
         ret, self.frame_bgr = self.cap.read()
 
         if not ret:
@@ -36,27 +49,27 @@ class Camera:
 
         self.frame_rgb = cv2.cvtColor(self.frame_bgr, cv2.COLOR_BGR2RGB)
 
-    def get_frame_rgb(self):
+    def get_frame_rgb(self) -> np.ndarray:
         return self.frame_rgb
 
-    def get_frame_bgr(self):
+    def get_frame_bgr(self) -> np.ndarray:
         return self.frame_bgr
-    
-    def get_frame_dimensions(self):
+
+    def get_frame_dimensions(self) -> tuple:
         return (self.frame_rgb.shape[1], self.frame_rgb.shape[0])
 
     def show_feed(self, window_name=DEFAULT_WINDOW_NAME, wait_key=1):
         cv2.imshow(window_name, self.frame_bgr)
         cv2.waitKey(wait_key)
 
-    def release(self):
+    def release(self) -> None:
         if self.cap.isOpened():
             self.cap.release()
 
-    def close_all(self):
+    def close_all(self) -> None:
         cv2.destroyAllWindows()
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         print("Shutting down camera...")
         self.release()
         self.close_all()
