@@ -25,13 +25,9 @@ class LightInterface(BaseInterface):
 
         self.hand = None  # Currently tracked hand
         self.click_threshold = CLICK_THRESHOLD  # Distance threshold for click detection
-
-        # Optional debug flag (add LEDInterface DEBUG = true in config if desired)
-        # try:
-        #     self.debug = config.getboolean("LEDInterface", "DEBUG")
-        # except Exception:
-        #     self.debug = False
         self.debug = False
+
+        self.pinch_state = False  # Track whether a pinch is currently active
 
     def enable(self) -> None:
         super().enable()
@@ -66,22 +62,16 @@ class LightInterface(BaseInterface):
                 print(f"[LEDInterface] No {HAND_PREFERENCE} hand detected this frame")
             return
 
-        # Convenience accessor
-        wl = self.hand.world_landmarks
-        thumb_tip = wl[THUMB_TIP]
-        index_finger_tip = wl[INDEX_FINGER_TIP]
-
-        # Compute distances (world coordinates are typically in meters)
-        dist = math.dist((thumb_tip.x, thumb_tip.y, thumb_tip.z), (index_finger_tip.x, index_finger_tip.y, index_finger_tip.z))
+        # Compute distances
+        dist = self.hand.calculate_xyz_distance(THUMB_TIP, INDEX_FINGER_TIP)
 
         if self.debug:
             print("[LightInterface] Distances:", f"{dist:.4f}")
 
         is_pinch = dist < self.click_threshold
 
-        if is_pinch and not self.pinch_active[0]:
+        if is_pinch != self.pinch_state:
+            self.pinch_state = is_pinch
             if self.debug:
-                print("[LightInterface] Pinch detected - turning light ON")
+                print("[LightInterface] Pinch detected - toggling light")
             self.esp32_serial_adapter.write_line("LIGHT TOGGLE")
-
-        # (Optional) could add a small hysteresis by using a release threshold > click_threshold

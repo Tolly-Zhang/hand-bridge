@@ -44,17 +44,32 @@ class Hand:
     world_landmarks: List[Landmark]  # len == 21
 
     def __post_init__(self) -> None:
-        assert len(self.landmarks) == 21, f"Hand must have exactly 21 landmarks. Got {len(self.landmarks)} instead."
-        assert len(self.world_landmarks) == 21, f"Hand must have exactly 21 world landmarks. Got {len(self.world_landmarks)} instead."
-        assert 0.0 <= self.confidence <= 1.0, f"Confidence must be in [0,1]. Got {self.confidence} instead."
+        assert len(self.landmarks) == 21, f"Hand Initialization: Hand must have exactly 21 landmarks. Got {len(self.landmarks)} instead."
+        assert len(self.world_landmarks) == 21, f"Hand Initialization: Hand must have exactly 21 world landmarks. Got {len(self.world_landmarks)} instead."
+        assert 0.0 <= self.confidence <= 1.0, f"Hand Initialization: Hand Confidence must be in [0,1]. Got {self.confidence} instead."
 
-    def is_touching(self, lm1_idx: int, lm2_idx: int, threshold: float):
+    def get_landmark(self, index: int) -> NormalizedLandmark:
+        return self.landmarks[index]
+
+    def get_world_landmark(self, index: int) -> Landmark:
+        return self.world_landmarks[index]
+    
+    def calculate_xy_distance(self, lm1_idx: int, lm2_idx: int) -> float:
+        lm1 = self.landmarks[lm1_idx]
+        lm2 = self.landmarks[lm2_idx]
+        return math.sqrt((lm1.x - lm2.x) ** 2 + 
+                         (lm1.y - lm2.y) ** 2)
+    
+    def calculate_xyz_distance(self, lm1_idx: int, lm2_idx: int) -> float:
         lm1 = self.world_landmarks[lm1_idx]
         lm2 = self.world_landmarks[lm2_idx]
-        dist = math.sqrt((lm1.x - lm2.x) ** 2 + 
+        return math.sqrt((lm1.x - lm2.x) ** 2 + 
                          (lm1.y - lm2.y) ** 2 + 
                          (lm1.z - lm2.z) ** 2)
-        return dist < threshold
+    
+    def is_touching(self, lm1_idx: int, lm2_idx: int, threshold: float):
+        distance = self.calculate_xy_distance(lm1_idx, lm2_idx)
+        return distance < threshold
 
 @dataclass
 class Meta:
@@ -76,10 +91,12 @@ class FramePayload:
     meta: Meta
     hands: List[Hand]
 
-    def print_summary(self) -> None:
-        print(f"Frame with {len(self.hands)} hands detected.")
-        print(self.meta)
+    def __str__(self) -> None:
+        result = [f"Frame with {len(self.hands)} hands detected."]
+        result.append(str(self.meta))
+
         for hand in self.hands:
-            print(f"  {hand.handedness} Hand with confidence {hand.confidence:.2f} - In Frame: {hand.in_frame}")
+            result.append(f"  {hand.handedness} Hand with confidence {hand.confidence:.2f} - In Frame: {hand.in_frame}")
             for i, lm in enumerate(hand.landmarks):
-                print(f"    Landmark {i}: (x={lm.x:.3f}, y={lm.y:.3f}, z={lm.z:.3f})")
+                result.append(f"    Landmark {i}: (x = {lm.x:.3f}, y = {lm.y:.3f}, z = {lm.z:.3f})")
+        return "\n".join(result)

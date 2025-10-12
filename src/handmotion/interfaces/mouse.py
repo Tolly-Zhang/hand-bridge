@@ -12,11 +12,8 @@ import math
 HAND_PREFERENCE = config.get("CursorInterface", "HAND_PREFERENCE")
 CLICK_THRESHOLD = config.getfloat("MediaPipe", "CLICK_THRESHOLD")
 
-WRIST = config.getint("LandmarkIndices", "WRIST")
 THUMB_TIP = config.getint("LandmarkIndices", "THUMB_TIP")
 INDEX_FINGER_TIP = config.getint("LandmarkIndices", "INDEX_FINGER_TIP")
-MIDDLE_FINGER_TIP = config.getint("LandmarkIndices", "MIDDLE_FINGER_TIP")
-RING_FINGER_TIP = config.getint("LandmarkIndices", "RING_FINGER_TIP")
 PINKY_TIP = config.getint("LandmarkIndices", "PINKY_TIP")
 
 class MouseInterface(BaseInterface):
@@ -26,7 +23,9 @@ class MouseInterface(BaseInterface):
 
     def __init__(self, context: dict) -> None:
         super().__init__(context)
-        self.mouse = context.get("mouse_controller")
+
+        self.mouse: CursorAdapter = context.get("mouse_controller")
+        
         if not self.mouse:
             raise ValueError("CursorDemo requires 'mouse_controller' in context")
         
@@ -55,11 +54,14 @@ class MouseInterface(BaseInterface):
             if hand.handedness == self.hand_preference:
                 self.hand = hand
                 break
+        
         if not self.hand:
             print(f"Error: No {self.hand_preference} hand detected")
             return
-        self.pos_x = 1 - self.hand.landmarks[PINKY_TIP].x     # Pinky finger tip
-        self.pos_y = self.hand.landmarks[PINKY_TIP].y     # Pinky finger tip
+
+        tracker: Landmark = self.hand.landmarks[PINKY_TIP]
+
+        self.pos_x, self.pos_y = 1 - tracker.x, tracker.y
         self.mouse.move_norm(self.pos_x, self.pos_y)
 
         print(f"Cursor moved to: ({self.pos_x:.2f}, {self.pos_y:.2f})")

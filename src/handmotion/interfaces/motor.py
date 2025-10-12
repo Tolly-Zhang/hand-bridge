@@ -47,13 +47,8 @@ class MotorInterface(BaseInterface):
         if not self.hand:
             print(f"Error: No {HAND_PREFERENCE} hand detected")
             return
-        
-        wl = self.hand.world_landmarks
-        thumb_tip = wl[THUMB_TIP]
-        index_finger_tip = wl[INDEX_FINGER_TIP]
 
-        distance = math.dist((thumb_tip.x, thumb_tip.y, thumb_tip.z),
-                             (index_finger_tip.x, index_finger_tip.y, index_finger_tip.z))
+        distance = self.hand.calculate_xyz_distance(THUMB_TIP, INDEX_FINGER_TIP)
 
         speed = (distance - CLICK_THRESHOLD) / (0.15 - CLICK_THRESHOLD) * 10
         speed = min(max(speed, 0), 10)

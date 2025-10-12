@@ -30,12 +30,6 @@ class LEDInterface(BaseInterface):
 
         self.hand = None  # Currently tracked hand
         self.click_threshold = CLICK_THRESHOLD  # Distance threshold for click detection
-
-        # Optional debug flag (add LEDInterface DEBUG = true in config if desired)
-        # try:
-        #     self.debug = config.getboolean("LEDInterface", "DEBUG")
-        # except Exception:
-        #     self.debug = False
         self.debug = False
 
     def enable(self) -> None:
@@ -71,20 +65,12 @@ class LEDInterface(BaseInterface):
                 print(f"[LEDInterface] No {HAND_PREFERENCE} hand detected this frame")
             return
 
-        # Convenience accessor
-        wl = self.hand.world_landmarks
-        thumb_tip = wl[THUMB_TIP]
-        index_finger_tip = wl[INDEX_FINGER_TIP]
-        middle_finger_tip = wl[MIDDLE_FINGER_TIP]
-        ring_finger_tip = wl[RING_FINGER_TIP]
-        pinky_tip = wl[PINKY_TIP]
-
-        # Compute distances (world coordinates are typically in meters)
+        # Compute distances
         distances = [
-            math.dist((thumb_tip.x, thumb_tip.y, thumb_tip.z), (index_finger_tip.x, index_finger_tip.y, index_finger_tip.z)),
-            math.dist((thumb_tip.x, thumb_tip.y, thumb_tip.z), (middle_finger_tip.x, middle_finger_tip.y, middle_finger_tip.z)),
-            math.dist((thumb_tip.x, thumb_tip.y, thumb_tip.z), (ring_finger_tip.x, ring_finger_tip.y, ring_finger_tip.z)),
-            math.dist((thumb_tip.x, thumb_tip.y, thumb_tip.z), (pinky_tip.x, pinky_tip.y, pinky_tip.z)),
+            hand.calculate_xyz_distance(THUMB_TIP, INDEX_FINGER_TIP),
+            hand.calculate_xyz_distance(THUMB_TIP, MIDDLE_FINGER_TIP),
+            hand.calculate_xyz_distance(THUMB_TIP, RING_FINGER_TIP),
+            hand.calculate_xyz_distance(THUMB_TIP, PINKY_TIP)
         ]
 
         if self.debug:
@@ -99,10 +85,9 @@ class LEDInterface(BaseInterface):
                 self.led_states[i] = not self.led_states[i]
                 cmd = f"LED {'H' if self.led_states[i] else 'L'} {i}"
                 self.esp32_serial_adapter.write_line(cmd)
+                
                 if self.debug:
                     print(f"[LEDInterface] Pinch detected on finger {i}. Sent: {cmd}")
 
             # Update pinch active state
             self.pinch_active[i] = is_pinch
-
-        # (Optional) could add a small hysteresis by using a release threshold > click_threshold
