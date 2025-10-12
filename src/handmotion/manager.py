@@ -28,8 +28,11 @@ class InterfaceManager:
             interface.disable()
         self.active_ids = []
         print("All interfaces deactivated")
-    
-    def set_active(self, interface_ids: list[BaseInterface]) -> None:
+
+    def set_active(self, interface_ids: list[str]) -> None:
+
+        self.deactivate_all()
+
         for interface_id in interface_ids:
             if interface_id in self.interfaces:
                 self.active_ids.append(interface_id)

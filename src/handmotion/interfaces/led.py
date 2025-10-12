@@ -40,23 +40,27 @@ class LEDInterface(BaseInterface):
         if not super().find_hand(payload, HAND_PREFERENCE):
             return
 
-        self.pinch_active = [
+        self.pinch_fingers = [
             self.hand_1.is_touching(THUMB_TIP, INDEX_FINGER_TIP),
             self.hand_1.is_touching(THUMB_TIP, MIDDLE_FINGER_TIP),
             self.hand_1.is_touching(THUMB_TIP, RING_FINGER_TIP),
             self.hand_1.is_touching(THUMB_TIP, PINKY_TIP)
         ]
 
-        for i, is_pinch in enumerate(self.pinch_active):
+        for i, is_pinching in enumerate(self.pinch_fingers):
 
             # Edge detection: trigger only when going from not-pinched to pinched
-            if is_pinch != self.pinch_active[i]:
+            if is_pinching and not self.pinch_active[i]:
+
+                self.pinch_active[i] = is_pinching
+
                 # Toggle LED state
                 self.led_states[i] = not self.led_states[i]
+
                 cmd = f"LED {'H' if self.led_states[i] else 'L'} {i}"
                 self.adapter.write_line(cmd)
 
                 self.print_message(f"Pinch detected on finger {i}. Sent: {cmd}")
 
-            # Update pinch active state
-            self.pinch_active[i] = is_pinch
+            elif not is_pinching and self.pinch_active[i]:
+                self.pinch_active[i] = is_pinching
