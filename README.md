@@ -1,14 +1,8 @@
-# HandBridge
+## HandBridge
 
-Real-time hand (and simple gesture) tracking to control your computer and attached hardware (ESP32) with gestures. HandBridge uses **MediaPipe Hands** + **OpenCV** to extract 21 landmarks per detected hand, converts them to a canonical per‑frame payload, then routes that payload to one or more active interfaces (cursor, LEDs, motor throttle, etc.) via a lightweight manager.
+Real-time hand and gesture tracking for desktop control with optional ESP32 hardware integrations. HandBridge uses **MediaPipe Hands** plus **OpenCV** to extract per-frame landmarks, builds a canonical payload, and forwards it to whichever interfaces are active (mouse, LEDs, motor).
 
-The current implementation has evolved beyond the original MVP architecture in `docs/system-architecture.md`. Where the doc specifies a *single* active demo with async MediaPipe calls, the code presently:
-
-* Uses a synchronous `process_sync` call (not `detect_async`).
-* Allows **multiple interfaces enabled concurrently** (cursor, LED, motor) — though the manager logic can be refined (see Roadmap).
-* Adds early hardware integrations (ESP32 LED & Motor) plus a calibration utility for pinch distance.
-
-This README reflects the **actual code** as of the latest revision and highlights divergences from the original architecture spec.
+The codebase has drifted from the early MVP documented in `docs/system-architecture.md`. This README reflects the current implementation, while calling out any notable differences from that architecture document.
 
 ---
 
@@ -18,45 +12,36 @@ This README reflects the **actual code** as of the latest revision and highlight
 2. [Repository Structure](#repository-structure)
 3. [Quick Start](#quick-start)
 	- [Prerequisites](#prerequisites)
-	- [Clone & Environment Setup](#clone-and-set-up-powershell)
-	- [Run (No Hardware)](#run-no-hardware)
-	- [Run (With ESP32 Hardware)](#run-with-esp32-hardware)
-	- [Optional: ESP32 USB Driver (CP210x)](#optional-esp32-usb-driver-cp210x)
-4. [Calibration](#calibration)
-5. [Configuration](#configuration)
-6. [Hardware Protocols (LED & Motor)](#hardware-protocols-led--motor)
-7. [Firmware (ESP32 / PlatformIO)](#firmware-esp32--platformio)
-8. [How It Works](#how-it-works)
-9. [Extending](#extending)
-10. [Troubleshooting](#troubleshooting)
-11. [Performance Tips](#performance-tips)
-12. [Known Divergences vs Architecture Doc](#known-divergences-vs-architecture-doc)
-13. [Known Limitations](#known-limitations)
-14. [Roadmap](#roadmap)
-15. [Dependencies](#dependencies)
-16. [Contributing](#contributing)
-17. [License](#license)
-18. [Acknowledgments](#acknowledgments)
+	- [Clone & Environment Setup](#clone--environment-setup)
+	- [Run Without Hardware](#run-without-hardware)
+	- [Enable ESP32 Hardware](#enable-esp32-hardware)
+4. [ESP32 USB Driver (Optional)](#esp32-usb-driver-optional)
+5. [Calibration](#calibration)
+6. [Configuration](#configuration)
+7. [Hardware Protocols](#hardware-protocols)
+8. [Firmware Project](#firmware-project)
+9. [How It Works](#how-it-works)
+10. [Extending](#extending)
+11. [Troubleshooting](#troubleshooting)
+12. [Performance Tips](#performance-tips)
+13. [Differences vs Architecture Doc](#differences-vs-architecture-doc)
+14. [Known Limitations](#known-limitations)
+15. [Roadmap](#roadmap)
+16. [Dependencies](#dependencies)
+17. [Contributing](#contributing)
+18. [License](#license)
+19. [Acknowledgments](#acknowledgments)
+
+---
 
 ## Features
 
-Core:
-* Live webcam capture + MediaPipe Hands (21 landmarks per hand)
-* Canonical per-frame payload (`FramePayload`) including metadata & world and normalized landmarks
-* Interface Manager dispatches payloads to any enabled interfaces
-* Pinch-distance calibration helper (captures an empirical threshold)
-
-User / Desktop Interfaces:
-* Cursor control: moves pointer (currently mapped to pinky fingertip) & clicks on pinch (thumb↔index)
-
-Hardware Interfaces (ESP32 over serial):
-* LED interface: toggles up to 4 LEDs (thumb pinch to each finger) — sends `LED H|L <channel>`
-* Motor interface: maps pinch distance (thumb↔index) to a throttle value (`THROTTLE 0–10`)
-
-Infrastructure & Extensibility:
-* Configurable via `config.ini` (camera, thresholds, handedness per interface)
-* Thin adapters (`CursorAdapter`, `ESP32SerialAdapter`) isolate side-effects
-* Dataclass-based payload for clarity & testability
+- Synchronous MediaPipe Hands pipeline with camera auto-enumeration and manual index selection.
+- Canonical `FramePayload` dataclass that stores metadata, normalized landmarks, world landmarks, and in-frame flags.
+- Singleton `InterfaceManager` that cleanly enables/disables a set of interfaces every time `set_active` is called.
+- Cursor control via `MouseInterface`: configurable tracker landmark (default index fingertip) and pinch-to-click.
+- ESP32-focused hardware interfaces (`LEDInterface`, `MotorInterface`) that communicate through a shared serial adapter (`ESP32SerialAdapter`) with a READY/READY_ACK handshake.
+- Pinch-distance calibration helper for tuning click thresholds.
 
 ---
 
@@ -64,210 +49,148 @@ Infrastructure & Extensibility:
 
 ```
 src/handmotion/
-├─ core.py              # Main loop: camera → mediapipe → payload → interfaces
-├─ camera.py            # Camera singleton (OpenCV)
-├─ mediapipe.py         # MediaPipe Hands sync wrapper
-├─ payload.py           # Dataclasses (Landmark, Hand, Meta, FramePayload)
-├─ payload_builder.py   # MediaPipe results → FramePayload
-├─ time_controller.py   # Loop timing & FPS estimate
-├─ manager.py           # InterfaceManager (multi-enable currently)
-├─ calibration/         # Pinch distance calibration utilities
+├─ core.py              # Main loop (camera → mediapipe → payload → interfaces)
+├─ camera.py            # Camera singleton with optional camera selection prompt
+├─ mediapipe.py         # MediaPipe Hands wrapper (sync)
+├─ payload.py           # Payload dataclasses
+├─ payload_builder.py   # Converts MediaPipe results into FramePayload
+├─ time_controller.py   # Tracks elapsed time and frame delta
+├─ manager.py           # InterfaceManager singleton (activates/deactivates interfaces)
+├─ calibration/
+│  ├─ calibration.py    # Pinch-distance calibration routine
+│  └─ pinch_distance.py # Helper logic for pinch statistics
 ├─ adapters/
-│  ├─ cursor.py         # PyAutoGUI based cursor adapter
-│  └─ esp32_serial.py   # Serial adapter (READY handshake, LED/THROTTLE cmds)
+│  ├─ cursor.py         # PyAutoGUI wrapper for normalized cursor moves/clicks
+│  └─ esp32_serial.py   # PySerial wrapper with handshake helpers
 ├─ interfaces/
-│  ├─ base.py           # BaseInterface contract
-│  ├─ mouse.py          # Cursor demo interface
-│  ├─ led.py            # LED toggle interface (multi-finger pinch)
-│  ├─ motor.py          # Motor throttle interface (pinch distance mapping)
-│  └─ swipe_scroll.py   # (Placeholder / planned)
+│  ├─ base.py           # BaseInterface contract (enable/disable + hand helpers)
+│  ├─ interface_common.py # Config helpers shared by interfaces
+│  ├─ led.py            # Finger pinch toggles LED channels over serial
+│  ├─ motor.py          # Thumb–index distance mapped to throttle buckets
+│  └─ mouse.py          # Cursor control + pinch click
 └─ config/
-	├─ config.py         # INI loader
-	└─ config.ini        # Parameters (camera, mediapipe, thresholds, handedness)
-```
+	├─ config.py         # Config parser bootstrap
+	└─ config.ini        # Runtime configuration
 
-Additional docs: `docs/system-architecture.md`.
+docs/system-architecture.md  # Original MVP architecture notes (historic)
+firmware/esp-32/esp-32-firmware/ # PlatformIO project for ESP32 firmware
+```
 
 ---
 
-## Quick start
+## Quick Start
 
 ### Prerequisites
 
-- Windows, macOS, or Linux with a working webcam
-- Python 3.10–3.12 recommended
+- Windows, macOS, or Linux
+- Python 3.10 – 3.12 (tested)
+- Webcam accessible by OpenCV
 
-On Windows, the `keyboard` package may require an elevated PowerShell to read key presses globally. If you hit permission issues, either run your terminal as Administrator or disable key handling and use the console to quit.
+Windows-only note: the `keyboard` package may need an elevated PowerShell to capture the `q` key globally. If the exit key is ignored, run the shell as Administrator or adjust the quit logic to rely on OpenCV `waitKey`.
 
-#### (Optional) ESP32 USB Driver (CP210x)
-If you plan to build / flash the firmware in `firmware/esp-32/esp-32-firmware/`, many ESP32 DevKitC / “ESP32-WROOM-32” style boards expose a Silicon Labs **CP210x USB-to-UART** bridge. Install (or verify) the Virtual COM Port (VCP) driver so your OS creates a serial COM/tty device.
-
-- **Windows 10/11:** Install the *CP210x Universal Windows Driver* from Silicon Labs. If you downloaded a ZIP, extract it and in **Device Manager → (Board) → Update driver → Browse my computer →** point to the extracted folder. Re‑plug the board; you should see **Silicon Labs CP210x USB to UART Bridge (COMx)**.
-- **macOS:** Install the **CP210x VCP** macOS driver package from Silicon Labs (reboot may be required on older versions).
-- **Linux:** Driver is in the kernel. Just ensure your user has serial permissions:
-	```bash
-	sudo usermod -a -G dialout $USER  # log out/in afterwards
-	```
-
-Verify the port (board plugged in):
-```powershell
-pio device list
-```
-Expect something like `COM5` (Windows) / `/dev/ttyUSB0` or `/dev/tty.SLAB_USBtoUART` (Linux/macOS).
-
-PlatformIO `platformio.ini` example (already present—adjust `upload_port`):
-```ini
-[env:esp32dev]
-platform  = espressif32
-board     = esp32dev
-framework = arduino
-upload_port   = COM5
-upload_speed  = 921600
-monitor_port  = COM5
-monitor_speed = 115200
-```
-Troubleshooting: If upload times out, hold BOOT, tap EN/RESET, then release BOOT to enter the ROM bootloader and retry.
-
-#### (Optional) ESP32 USB driver (CP210x)
-If you plan to flash / use the ESP32 firmware in `firmware/esp-32/`, most ESP32 DevKitC / “ESP32-WROOM-32/32D” boards expose a Silicon Labs **CP210x USB-to-UART** bridge. Install (or verify) the Virtual COM Port (VCP) driver so your OS creates a serial COM/tty device.
-
-- **Windows 10/11:** Install the *CP210x Universal Windows Driver* from Silicon Labs. If you grabbed a ZIP, extract and install via: **Device Manager → (Board) → Update driver → Browse my computer →** point to the extracted folder. Re‑plug the board; you should see **Silicon Labs CP210x USB to UART Bridge (COMx)**.
-- **macOS:** Install the **CP210x VCP** macOS driver package from Silicon Labs (may require reboot on older macOS versions).
-- **Linux:** Driver is built into the kernel. Just ensure you have permission for the serial device:
-	```bash
-	sudo usermod -a -G dialout $USER   # log out/in afterwards
-	```
-
-**Verify the port**
-
-With the board connected:
-```powershell
-pio device list
-```
-You should see something like `COM5` (Windows) or `/dev/ttyUSB0` / `/dev/tty.SLAB_USBtoUART` (Linux/macOS).
-
-**PlatformIO config example** (adjust the port you discovered):
-```ini
-[env:esp32dev]
-platform  = espressif32
-board     = esp32dev
-framework = arduino
-
-upload_port   = COM5          ; or /dev/ttyUSB0 on Linux, /dev/tty.SLAB_USBtoUART on macOS
-upload_speed  = 921600
-monitor_port  = COM5
-monitor_speed = 115200
-```
-
-**Troubleshooting**
-- Upload times out: hold BOOT, tap EN/RESET, then release BOOT to force the ROM bootloader and retry.
-- Port not appearing (Windows): check Device Manager; reinstall driver or try a different cable/USB port.
-- Permission denied (Linux): confirm you re‑logged after adding to `dialout` group.
-
-If you prefer to keep the main README slim, you can move this block to `docs/USB-DRIVER.md` and link it here.
-
-### Clone and set up (PowerShell)
+### Clone & Environment Setup
 
 ```powershell
-# 1) Clone
 git clone https://github.com/Tolly-Zhang/hand-bridge.git
 cd hand-bridge
 
-# 2) Create a virtual environment
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+\.venv\Scripts\Activate.ps1
 
-# 3) Upgrade pip and install dependencies
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-If you’re on macOS/Linux, activate with `source .venv/bin/activate` instead.
+macOS/Linux activation: `source .venv/bin/activate`.
 
-### Run (No Hardware)
+### Run Without Hardware
 
 ```powershell
-# From repo root
-python .\src\handmotion\core.py
+python -m handmotion.core
 ```
 
-You’ll see an enumerated list of cameras. Enter an index. Cursor will move (pinky tip) & click on pinches.
+- Choose a camera index when prompted (prompt enabled by `[Camera] ASK_FOR_INDEX = True`).
+- Move your index finger to steer the cursor (landmark index set in config).
+- Pinch thumb and index to trigger a left click.
+- Press `q` to exit.
 
-Controls & notes:
-* Quit: press `q`
-* Preferred hand: `[CursorInterface] HAND_PREFERENCE`
-* Click threshold: stored as `CLICK_THRESHOLD` under `[MediaPipe]` (after calibration or manual edit)
-* Landmark used for motion: `PINKY_TIP` (placeholder) → change in `interfaces/mouse.py` if desired
+The viewport window name defaults to `[Camera] WINDOW_NAME`. Frames are annotated with hand landmarks for visual feedback.
 
-If you have no ESP32 connected but the code attempts serial open on a non-existent port, edit `core.py` to comment out the hardware sections or update the default port in `esp32_serial.py`.
+### Enable ESP32 Hardware
 
-### Run (With ESP32 Hardware)
+Hardware support is present but disabled by default in `core.py`. To use it:
 
-1. Connect your ESP32 and note the COM port (e.g., `COM5`).
-2. Update either:
-	* `DEFAULT_PORT` in `adapters/esp32_serial.py`, or
-	* Dynamically call `esp32_serial_adapter.set_port("COM5")` (add near initialization in `core.py`).
-3. Ensure firmware implements the handshake (`READY` → `READY_ACK`) and responds to commands (see Hardware Protocols section).
-4. Launch as above. The LED & Motor interfaces are enabled depending on `InterfaceManager.set_active([...])` call.
+1. Instantiate the serial adapter and open the port:
+	```python
+	esp32_serial_adapter = ESP32SerialAdapter(name="ESP32")
+	esp32_serial_adapter.list_ports()
+	esp32_serial_adapter.open_serial()
+	esp32_serial_adapter.establish_connection_handshake()
+	```
+2. Pass the adapter into the LED and/or motor interfaces and register them with the `InterfaceManager`:
+	```python
+	led_interface = LEDInterface({"esp32_serial_adapter": esp32_serial_adapter})
+	motor_interface = MotorInterface({"esp32_serial_adapter": esp32_serial_adapter})
+	interface_manager = InterfaceManager({
+	    "mouse": mouse_interface,
+	    "led": led_interface,
+	    "motor": motor_interface,
+	})
+	interface_manager.set_active(["mouse", "led", "motor"])
+	```
+3. Update the serial port in `config.ini` (`[ESP32Adapter] PORT = COMx`) or call `set_port()` before opening the connection.
 
-To focus only on certain interfaces, adjust:
-```python
-interface_manager = InterfaceManager(demos={ ... })
-interface_manager.set_active(["mouse"])  # or ["led"], ["motor"], or multiple
-```
+The Python adapter expects the firmware to respond with `READY_ACK` after it sends `READY`. See [Hardware Protocols](#hardware-protocols) for details.
 
-Currently `set_active` does not clear previous entries (see Roadmap). Disabled interfaces still receive IDs but guard with `self.enabled` internally.
+---
 
-### (Optional) Run the firmware build (ESP32)
-See the [Firmware](#firmware-esp32--platformio) section for details. Current interfaces expect commands defined below (LED & THROTTLE). A readiness handshake is already implemented in the Python serial adapter.
+## ESP32 USB Driver (Optional)
+
+Many ESP32 DevKitC / “ESP32-WROOM-32” boards expose the Silicon Labs CP210x USB-to-UART bridge. Install the VCP driver so the board appears as a serial device:
+
+- **Windows 10/11:** Install the *CP210x Universal Windows Driver* from Silicon Labs. In Device Manager, update the driver for the board and point to the extracted folder. Replug the board; it should appear as **Silicon Labs CP210x USB to UART Bridge (COMx)**.
+- **macOS:** Install the CP210x VCP package from Silicon Labs (restart on older macOS versions).
+- **Linux:** Driver ships with the kernel. Ensure your user is in the `dialout` (or equivalent) group: `sudo usermod -a -G dialout $USER` then log out/in.
+
+Verify connectivity with `pio device list` or `python -m serial.tools.list_ports`.
 
 ---
 
 ## Calibration
 
-Pinch distance varies by user / camera position. Use the built-in calibration routine (currently commented in `core.py`).
+Pinch distance varies per person and camera placement. The helper in `Calibration.calibrate_pinch_distance` collects pinch samples and reports an average distance that you can copy into `[MediaPipe] CLICK_THRESHOLD` in `config.ini`.
 
-1. Uncomment the line in `core.py`:
+Usage (manual step in `core.py`):
+
 ```python
 # Calibration.calibrate_pinch_distance(camera, hands, lm1=4, lm2=8, time_s=5)
 ```
-2. Run the app. Follow on-screen instructions (perform pinches for the duration).
-3. Record the printed average distance; set it as `CLICK_THRESHOLD` under `[MediaPipe]` in `config.ini`.
 
-Future improvement: auto-write the result back into `config.ini`.
+Uncomment the line, run the script, follow on-screen instructions, then re-comment once finished. A future enhancement will persist the result automatically.
 
 ---
 
 ## Configuration
 
-Edit `src/handmotion/config/config.ini`.
+All runtime settings live in `src/handmotion/config/config.ini`. Key entries:
 
-Key sections (example abbreviated — actual file may differ if calibrated):
 ```ini
 [Camera]
-INDEX = 0                ; Overridden by runtime prompt; config value can be a fallback
+INDEX = 701               ; Placeholder, overridden when asked at runtime
+ASK_FOR_INDEX = True
 RESOLUTION_X = 1920
 RESOLUTION_Y = 1080
 FPS = 30
+WINDOW_NAME = "Camera Feed"
 
 [MediaPipe]
-STATIC_IMAGE_MODE = False
 MAX_NUM_HANDS = 2
-MIN_DETECTION_CONFIDENCE = 0.5
-MIN_TRACKING_CONFIDENCE = 0.5
 MODEL_COMPLEXITY = 1
-CLICK_THRESHOLD = 0.045889540241904704  ; Calibrated pinch distance threshold
-
-[LandmarkIndices]
-WRIST = 0
-THUMB_TIP = 4
-INDEX_FINGER_TIP = 8
-MIDDLE_FINGER_TIP = 12
-RING_FINGER_TIP = 16
-PINKY_TIP = 20
+CLICK_THRESHOLD = 0.045889540241904704
 
 [CursorInterface]
 HAND_PREFERENCE = Left
+TRACKER_LANDMARK = 8      ; 8 = index fingertip
 
 [LEDInterface]
 HAND_PREFERENCE = Left
@@ -275,243 +198,151 @@ DEBUG = True
 
 [MotorInterface]
 HAND_PREFERENCE = Left
+
+[ESP32Adapter]
+PORT = COM3
+BAUDRATE = 115200
 ```
 
-Tips:
-* Unusual `INDEX` values (e.g., 701) are placeholders—select a valid camera at runtime.
-* `CLICK_THRESHOLD` lives under `[MediaPipe]` (shared by interfaces) — unify / split later if per-interface thresholds are needed.
-* Set `DEBUG = True` for verbose LED interface logs.
-* For multi-monitor or aspect-ratio mismatches, consider adding normalization or mapping logic (future work).
+`TRACKER_LANDMARK` comes directly from the indices defined under `[LandmarkIndices]`, allowing quick experimentation (e.g., swap to 12 for middle finger). Ensure the COM port matches your board before opening the serial connection.
 
 ---
 
-## Hardware Protocols (LED & Motor)
+## Hardware Protocols
 
-The serial adapter performs a basic handshake and then sends human-readable ASCII commands terminated by `\n`.
+The serial protocol is newline-terminated ASCII:
 
-### Connection Handshake
-| Direction | Message       | Notes                                      |
-|-----------|---------------|--------------------------------------------|
-| Host → ESP32 | `READY`        | Sent once after serial port opens         |
-| ESP32 → Host | `READY_ACK`    | Firmware must reply to confirm readiness  |
+- **Handshake:** Host sends `READY`, firmware responds `READY_ACK`.
+- **LED toggle:** `LED H|L <channel>` toggles one of four channels (thumb-index through thumb-pinky).
+- **Motor throttle:** `THROTTLE <0–10>` maps pinch distance to a coarse throttle bucket.
 
-Python waits until `READY_ACK` before proceeding.
-
-### LED Interface Commands
-On each pinch edge (thumb to one of four other fingers), a toggle is sent:
-```
-LED H <i>   # Turn LED channel <i> on  (0..3)
-LED L <i>   # Turn LED channel <i> off
-```
-Channels map (current implementation):
-0 = Thumb↔Index, 1 = Thumb↔Middle, 2 = Thumb↔Ring, 3 = Thumb↔Pinky.
-
-### Motor Interface Commands
-Pinch distance maps to a throttle bucket 0–10 (clamped):
-```
-THROTTLE <n>
-```
-Transmitted every frame while active. Firmware should debounce / ignore repeats if needed.
+`LEDInterface` performs edge detection so commands fire only on pinch transitions. `MotorInterface` clamps output between 0 and 10 to simplify firmware-side handling.
 
 ---
 
----
+## Firmware Project
 
-## Firmware (ESP32 / PlatformIO)
+`firmware/esp-32/esp-32-firmware` is a PlatformIO project intended to mirror the Python protocol.
 
-The repository contains an (currently separate) PlatformIO project for an ESP32 at:
-
-```
-firmware/esp-32/esp-32-firmware/
-```
-
-Implements the receiving side of the `READY`/`READY_ACK`, `LED H|L <i>`, and `THROTTLE <n>` commands. Reference the examples in `board-1/` and `board-2/` (placeholders to expand). The Python side **already opens** the serial port on startup.
-
-### Build / Upload
-
-From the firmware project directory:
+Typical workflow:
 
 ```powershell
 cd firmware/esp-32/esp-32-firmware
 pio run                 # build
-pio run -t upload       # flash (ensure correct upload_port in platformio.ini)
+pio run -t upload       # flash (set upload_port if needed)
 pio device monitor      # open serial monitor
 ```
 
-If you need to override the port on the fly:
-```powershell
-pio run -t upload --upload-port COM5
-```
+Override the upload port inline: `pio run -t upload --upload-port COM5`.
 
-### Example Firmware Pseudocode (Handshake)
-```c++
-void setup() {
-	Serial.begin(115200);
-}
-
-void loop() {
-	if (Serial.available()) {
-		String line = Serial.readStringUntil('\n');
-		line.trim();
-		if (line == "READY") {
-			Serial.println("READY_ACK");
-		} else if (line.startsWith("LED ")) {
-			// Parse: LED H 0  / LED L 2
-		} else if (line.startsWith("THROTTLE ")) {
-			// Parse throttle integer
-		}
-	}
-}
-```
+The firmware should read lines with `Serial.readStringUntil('\n')`, trim them, and branch on `READY`, `LED`, and `THROTTLE` commands as described above.
 
 ---
 
 ## How It Works
 
-1. `core.py` enumerates cameras, opens user-selected device.
-2. Each loop iteration: read frame (BGR→RGB), synchronously process with MediaPipe.
-3. `payload_builder.py` constructs `FramePayload` (meta, normalized + world landmarks, handedness, confidence, in-frame heuristic).
-4. `InterfaceManager.on_frame()` iterates enabled interface IDs; each interface gates on its `enabled` flag.
-5. Interfaces consume the landmarks:
-	* Mouse: move & pinch click
-	* LED: pinch edges toggle channels
-	* Motor: pinch distance → throttle scaling
-6. Keyboard `q` exits; windows are closed and serial connection terminated.
+1. `Camera` enumerates video devices (if configured) and streams frames in BGR + RGB.
+2. `MediaPipeHands.process_sync` returns hand landmarks for the current frame.
+3. `PayloadBuilder` converts raw landmarks into the strongly typed `FramePayload` dataclasses.
+4. `InterfaceManager` loops over the active interface IDs (which are reset on every `set_active` call) and invokes `on_frame` on each interface.
+5. Each interface gates on `self.enabled` and the requested hand preference before executing side effects through its adapter.
+6. When `q` is pressed, the script exits gracefully and the camera shuts down.
 
-Design keeps side-effects in adapters and a narrow data model. Future work may reintroduce hotkey-based switching or smoothing layers.
+This architecture keeps OS/hardware side effects in adapters, enabling easier testing and substitution when adding new devices.
 
 ---
 
 ## Extending
 
-* Create a new file in `interfaces/` extending `BaseInterface`.
-* Add any hardware / OS side-effects in an adapter under `adapters/`.
-* Register in `core.py` and pass required context objects (serial adapters, cursor adapter, etc.).
-* For gesture logic, prefer using world landmarks for distance-based thresholds & normalized for cursor mapping.
+- Create a new class in `interfaces/` extending `BaseInterface`.
+- Inject any dependencies via the `context` dictionary; they are lazily instantiated through adapters if missing.
+- Register the interface in `core.py` and include it in `interface_manager.set_active([...])`.
+- For hardware, add a dedicated adapter under `adapters/` to isolate serial/network logic.
 
-Suggested additions:
-* SwipeScrollInterface (horizontal motion → scroll)
-* HUD / overlay (OpenCV debug window with FPS & pinch distances)
-* Smoothing filter (EMA or Kalman) for cursor stability
-* Recording/replay of `FramePayload` sequences for offline testing
-* Config-driven interface enabling instead of hard-coded `set_active`
+Ideas: swipe-to-scroll interface, on-screen HUD overlay, smoothing filters, or offline payload record/replay tools.
 
 ---
 
 ## Troubleshooting
 
-- Keyboard permissions (Windows): if `q` isn’t detected, try running PowerShell as Administrator or swap to OpenCV’s `waitKey` handling.
-- Cursor doesn’t move: ensure PyAutoGUI has permission (macOS accessibility / Wayland issues) & landmark chosen is visible.
-- Camera not found: verify the printed camera list, try a different index, or close other apps using the webcam.
-- Performance: lower the resolution or `MODEL_COMPLEXITY` in `config.ini`.
-- Serial not opening: verify COM port, cable, and that no other monitor is attached; list ports via adapter `list_ports()` call or use `pio device list`.
-- No `READY_ACK`: ensure firmware prints exactly `READY_ACK` with newline.
+- `q` key ignored on Windows → run PowerShell as Administrator or change quit logic.
+- Cursor stuck → ensure PyAutoGUI has accessibility permissions (macOS) or Wayland compatibility.
+- No camera preview → confirm index selection, free the device from other apps, or disable the prompt (`ASK_FOR_INDEX = False`).
+- Serial errors → verify COM port, cable, and that no monitor is running; list ports via `ESP32SerialAdapter.list_ports()`.
+- Missing `READY_ACK` → confirm the firmware echoes `READY_ACK` exactly (uppercase, newline).
 
 ---
 
 ## Performance Tips
 
-- Prefer 1280x720 over 1920x1080 if CPU bound.
-- Lower `MODEL_COMPLEXITY` (0) for speed; keep (1) for balanced accuracy.
-- Avoid unnecessary `print` spam inside tight loops (reduce LED/motor debug or add rate limiting).
-- Pinch detection threshold can be tuned to reduce false clicks if jittery.
+- Lower camera resolution (e.g., 1280×720) or `MODEL_COMPLEXITY = 0` if CPU-bound.
+- Reduce verbose logging inside tight loops to avoid console bottlenecks.
+- Adjust `CLICK_THRESHOLD` if pinch detection is too sensitive or laggy.
 
 ---
 
-## Known Divergences vs Architecture Doc
+## Differences vs Architecture Doc
 
-| Topic | Architecture Doc | Current Code | Notes |
-|-------|------------------|--------------|-------|
-| MediaPipe mode | Async (`detect_async`) | Sync `process_sync` | Simpler initial implementation |
-| Single active demo | Yes | Multiple enabled (manager retains list) | Manager design needs cleanup |
-| Hotkeys (1/2/3) | Implemented per spec | Not implemented | Could map via `keyboard` lib |
-| Cursor landmark | Index fingertip | Pinky fingertip | Placeholder; easy to change |
-| Payload contents | Normalized only | Normalized + world coords + in-frame flag | Expanded for distance logic |
-| ESP32 LED protocol | `LED:ON/OFF` | `LED H/L <i>` | Adopted multi-channel toggle |
-| Gesture smoothing | 3–5 frame | None | Roadmap item |
+| Topic | Architecture Doc | Current State |
+|-------|------------------|---------------|
+| MediaPipe mode | Async `detect_async` | Sync `process_sync` for simplicity |
+| Interface switching | Hotkey-driven single demo | Explicit `set_active` list (no hotkeys yet) |
+| Cursor landmark | Hard-coded index finger | Configurable via `[CursorInterface] TRACKER_LANDMARK` (defaults to index finger) |
+| Payload fields | Normalized landmarks only | Normalized + world landmarks + metadata |
+| Serial protocol | `LED:ON/OFF` | `LED H|L <channel>` + `THROTTLE <n>` commands |
+
+Refer to `docs/system-architecture.md` for the historical plan.
 
 ---
 
 ## Known Limitations
 
-- InterfaceManager duplicates IDs and does not truly “switch” — potential cleanup needed.
-- Pinky tip placeholder for cursor control (less ergonomic than index tip).
-- No temporal smoothing (cursor jitter on small tremors).
-- No monitor / aspect-ratio transformation layer (assumes uniform [0,1] scaling).
-- Heavy unused dependencies inflate install time (see Dependencies section).
-- No automated tests or CI pipeline yet.
-- Serial port is assumed present; failure path not gracefully skipping hardware interfaces.
-
----
+- No temporal smoothing; cursor jitter is possible with noisy input.
+- Hardware interfaces require manual enabling/editing in `core.py`.
+- No automated tests or CI pipeline.
+- Serial failure cases (e.g., port missing) rely on manual guarding by the user.
 
 ---
 
 ## Roadmap
 
-Near-term:
-* Refactor `InterfaceManager` to maintain a set and truly replace active list.
-* Implement hotkeys (1=cursor, 2=led, 3=motor, q=quit) using `keyboard` or OpenCV `waitKey`.
-* Switch cursor landmark to index fingertip + add smoothing (EMA / windowed avg).
-* Graceful fallback if serial open fails (auto-disable hardware interfaces).
-* Trim unused dependencies or split into `requirements.txt` + `requirements-dev.txt`.
-
-Medium:
-* Swipe/Scroll interface.
-* Overlay HUD (landmarks, FPS, pinch distances, throttle).
-* Auto-calibration tool writing back to config.
-* Logging abstraction with verbosity levels.
-
-Longer-term:
-* Async pipeline & optional threading.
-* Recording & replay harness for regression tests.
-* Plugin discovery via entry points / dynamic import.
-* Packaging & PyPI distribution.
+- Add hotkeys to toggle interfaces at runtime.
+- Persist calibration results directly to `config.ini`.
+- Introduce smoothing/filters for cursor control.
+- Improve hardware setup flow (auto-disable when serial open fails).
+- Add optional HUD overlay and swipe/scroll gestures.
 
 ---
 
 ## Dependencies
 
-Primary runtime (actively referenced in code):
-* mediapipe
-* opencv-contrib-python (contains features superset; opencv-python duplication can be removed)
-* pyautogui (+ its transitive dependencies)
-* keyboard
-* cv2_enumerate_cameras
-* pyserial (required by `esp32_serial.py`) ✅ (added — was missing)
+Current runtime dependencies (see `requirements.txt`):
 
-Potentially removable / currently unused:
-* jax / jaxlib / ml_dtypes / opt_einsum
-* matplotlib, scipy, sentencepiece
-* Django
+- `cv2_enumerate_cameras`
+- `keyboard`
+- `mediapipe`
+- `opencv-python`
+- `PyAutoGUI`
+- `pyserial`
 
-Recommended consolidation:
-* Remove `opencv-python` (keep only `opencv-contrib-python`)
-* Split heavy ML / plotting stacks into `requirements-dev.txt`
-* Provide a minimal install profile for end users focused on gesture control only
-
-Future optimization: scripted dependency audit + automated pruning via a tool (e.g., `deptry`, already listed).
+If you prefer OpenCV contrib features, swap `opencv-python` for `opencv-contrib-python`. Keep `requirements.txt` minimal for faster installs.
 
 ---
 
 ## Contributing
 
-1. Fork & branch (`feat/<topic>` or `fix/<issue>`).
-2. Keep changes small and focused; update `README.md` / docs if behavior changes.
-3. Run a quick manual test (`python src/handmotion/core.py`).
-4. Prefer adding type hints & docstrings for new interfaces/adapters.
-5. If trimming dependencies, verify the core demo still runs before PR.
+1. Fork the repo and create a feature branch.
+2. Keep PRs focused and update documentation when behavior changes.
+3. Run `python -m handmotion.core` (with or without hardware) to sanity check.
+4. Add type hints or docstrings for new interfaces/adapters where clarity helps.
 
-Potential future tooling:
-- Pre-commit hooks (formatting / import sorting)
-- Automated linting (ruff / mypy) – not yet configured.
-
----
+Potential future tooling: pre-commit hooks, linting (ruff/mypy), or simple CI smoke tests.
 
 ---
 
 ## License
 
-This project is licensed under the MIT License. See `LICENSE` for details.
+MIT License — see `LICENSE` for details.
 
 ---
 
