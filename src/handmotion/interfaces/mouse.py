@@ -5,7 +5,6 @@ from ..adapters.cursor import CursorAdapter
 from ..payload import Landmark
 
 HAND_PREFERENCE = config.get("CursorInterface", "HAND_PREFERENCE")
-CLICK_THRESHOLD = config.getfloat("MediaPipe", "CLICK_THRESHOLD")
 
 THUMB_TIP = config.getint("LandmarkIndices", "THUMB_TIP")
 INDEX_FINGER_TIP = config.getint("LandmarkIndices", "INDEX_FINGER_TIP")
