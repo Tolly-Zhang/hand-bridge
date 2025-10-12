@@ -37,24 +37,24 @@ def main():
 
     # Calibration.calibrate_pinch_distance(camera, hands, lm1=4, lm2=8, time_s=5)
 
-    esp32_serial_adapter = ESP32SerialAdapter(name="ESP32")
-    esp32_serial_adapter.list_ports()
-    esp32_serial_adapter.open_serial()
-    esp32_serial_adapter.establish_connection_handshake()
+    # esp32_serial_adapter = ESP32SerialAdapter(name="ESP32")
+    # esp32_serial_adapter.list_ports()
+    # esp32_serial_adapter.open_serial()
+    # esp32_serial_adapter.establish_connection_handshake()
 
     cursor_adapter = CursorAdapter()
 
-    led_interface = LEDInterface(context={"esp32_serial_adapter": esp32_serial_adapter})
-    motor_interface = MotorInterface(context={"esp32_serial_adapter": esp32_serial_adapter})
+    # led_interface = LEDInterface(context={"esp32_serial_adapter": esp32_serial_adapter})
+    # motor_interface = MotorInterface(context={"esp32_serial_adapter": esp32_serial_adapter})
     mouse_interface = MouseInterface(context={"mouse_controller": cursor_adapter})
 
     interface_manager = InterfaceManager(interfaces={
-        "led": led_interface,
-        "motor": motor_interface,
+        # "led": led_interface,
+        # "motor": motor_interface,
         "mouse": mouse_interface
     })
 
-    interface_manager.set_active(["motor"])
+    interface_manager.set_active(["mouse"])
 
     time_controller.start()
 
@@ -87,7 +87,7 @@ def main():
         # time.sleep(1)  # Delay for testing purposes
 
     camera.shutdown()  # Ensure camera is shutdown properly
-    esp32_serial_adapter.close_serial()
+    # esp32_serial_adapter.close_serial()
 
 if __name__ == "__main__":
     main()

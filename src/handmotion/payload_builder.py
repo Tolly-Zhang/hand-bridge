@@ -5,7 +5,6 @@ class PayloadBuilder:
     @staticmethod
     def build_payload(frame_dimensions: tuple, time_ns: int, time_delta_ns: int, hands) -> FramePayload:
         # Convert mediapipe results to FramePayload
-        assert meta is not None, "PayloadBuilder: Meta information is required to build FramePayload."
         assert hands is not None, "PayloadBuilder: Hands information is required to build FramePayload."
 
         frame_width, frame_height = frame_dimensions[0], frame_dimensions[1]
