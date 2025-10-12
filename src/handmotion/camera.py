@@ -24,7 +24,7 @@ class Camera:
     def __init__(self, camera_index=DEFAULT_CAMERA_INDEX, width=DEFAULT_CAMERA_RESOLUTION[0], height=DEFAULT_CAMERA_RESOLUTION[1]):
         if ASK_FOR_CAMERA_INDEX:
             self.print_cameras()
-            camera_index = int(input(f"Enter camera index [{camera_index}]: ") or camera_index)
+            camera_index = int(input(f"Enter Camera Index [{camera_index}]: ") or camera_index)
         self.cap = cv2.VideoCapture(camera_index)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
@@ -32,7 +32,7 @@ class Camera:
         if not self.cap.isOpened():
             raise RuntimeError(f"Could not open camera with index {camera_index}.")
 
-        print(f"Camera initialized with index {camera_index} at resolution {width}x{height}")
+        print(f"Camera Initialized With Index [{camera_index}] at Resolution {width}x{height}")
 
     def print_cameras(self) -> None:
         cameras = list(enumerate_cameras())
