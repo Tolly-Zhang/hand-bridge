@@ -1,8 +1,9 @@
-import math
 from ..config.config import config
 
 from .base import BaseInterface
 from ..payload import FramePayload
+
+DEBUG = config.getboolean("DEFAULT", "DEBUG")
 
 HAND_PREFERENCE = config.get("LEDInterface", "HAND_PREFERENCE")
 CLICK_THRESHOLD = config.getfloat("MediaPipe", "CLICK_THRESHOLD")
@@ -25,30 +26,22 @@ class LightInterface(BaseInterface):
 
         self.hand = None  # Currently tracked hand
         self.click_threshold = CLICK_THRESHOLD  # Distance threshold for click detection
-        self.debug = False
 
         self.pinch_state = False  # Track whether a pinch is currently active
-
-    def enable(self) -> None:
-        super().enable()
-        # Additional setup if needed
-
-    def disable(self) -> None:
-        super().disable()
-        # Additional teardown if needed
 
     def on_frame(self, payload: FramePayload) -> None:
 
         if not self.enabled:
             return
 
-        print("[LightInterface] on_frame called")
+        if DEBUG:
+            print("[LightInterface] on_frame called")
 
         # Reset selected hand each frame to avoid using stale references
         self.hand = None
 
         if not payload.hands:
-            if self.debug:
+            if DEBUG:
                 print("[LEDInterface] No hands detected")
             return  # No hands detected
 
@@ -58,20 +51,20 @@ class LightInterface(BaseInterface):
                 break
 
         if not self.hand:
-            if self.debug:
+            if DEBUG:
                 print(f"[LEDInterface] No {HAND_PREFERENCE} hand detected this frame")
             return
 
         # Compute distances
         dist = self.hand.calculate_xyz_distance(THUMB_TIP, INDEX_FINGER_TIP)
 
-        if self.debug:
+        if DEBUG:
             print("[LightInterface] Distances:", f"{dist:.4f}")
 
         is_pinch = dist < self.click_threshold
 
         if is_pinch != self.pinch_state:
             self.pinch_state = is_pinch
-            if self.debug:
+            if DEBUG:
                 print("[LightInterface] Pinch detected - toggling light")
             self.esp32_serial_adapter.write_line("LIGHT TOGGLE")

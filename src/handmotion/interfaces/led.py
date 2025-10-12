@@ -1,8 +1,9 @@
-import math
 from ..config.config import config
 
 from .base import BaseInterface
 from ..payload import FramePayload
+
+DEBUG = config.getboolean("DEFAULT", "DEBUG")
 
 HAND_PREFERENCE = config.get("LEDInterface", "HAND_PREFERENCE")
 CLICK_THRESHOLD = config.getfloat("MediaPipe", "CLICK_THRESHOLD")
@@ -30,28 +31,20 @@ class LEDInterface(BaseInterface):
 
         self.hand = None  # Currently tracked hand
         self.click_threshold = CLICK_THRESHOLD  # Distance threshold for click detection
-        self.debug = False
-
-    def enable(self) -> None:
-        super().enable()
-        # Additional setup if needed
-
-    def disable(self) -> None:
-        super().disable()
-        # Additional teardown if needed
 
     def on_frame(self, payload: FramePayload) -> None:
 
         if not self.enabled:
             return
-        
-        print("[LEDInterface] on_frame called")
+
+        if DEBUG:
+            print("[LEDInterface] on_frame called")
 
         # Reset selected hand each frame to avoid using stale references
         self.hand = None
 
         if not payload.hands:
-            if self.debug:
+            if DEBUG:
                 print("[LEDInterface] No hands detected")
             return  # No hands detected
 
@@ -61,7 +54,7 @@ class LEDInterface(BaseInterface):
                 break
 
         if not self.hand:
-            if self.debug:
+            if DEBUG:
                 print(f"[LEDInterface] No {HAND_PREFERENCE} hand detected this frame")
             return
 
@@ -73,7 +66,7 @@ class LEDInterface(BaseInterface):
             hand.calculate_xyz_distance(THUMB_TIP, PINKY_TIP)
         ]
 
-        if self.debug:
+        if DEBUG:
             print("[LEDInterface] Distances:", ", ".join(f"{d:.4f}" for d in distances))
 
         for i, dist in enumerate(distances):
@@ -85,8 +78,8 @@ class LEDInterface(BaseInterface):
                 self.led_states[i] = not self.led_states[i]
                 cmd = f"LED {'H' if self.led_states[i] else 'L'} {i}"
                 self.esp32_serial_adapter.write_line(cmd)
-                
-                if self.debug:
+
+                if DEBUG:
                     print(f"[LEDInterface] Pinch detected on finger {i}. Sent: {cmd}")
 
             # Update pinch active state

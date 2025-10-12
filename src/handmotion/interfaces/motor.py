@@ -1,10 +1,11 @@
-import math
 from ..config.config import config
 
 from .base import BaseInterface
 from typing import Any  # Add this if you want to use Any as a placeholder
 
 from ..payload import FramePayload
+
+DEBUG = config.getboolean("DEFAULT", "DEBUG")
 
 HAND_PREFERENCE = config.get("MotorInterface", "HAND_PREFERENCE")
 CLICK_THRESHOLD = config.getfloat("MediaPipe", "CLICK_THRESHOLD")
@@ -22,14 +23,6 @@ class MotorInterface(BaseInterface):
         if not self.esp32_serial_adapter:
             raise ValueError("MotorInterface requires 'esp32_serial_adapter' in context")
         self.hand = None  # Currently tracked hand
-
-    def enable(self) -> None:
-        super().enable()
-        # Additional setup if needed
-
-    def disable(self) -> None:
-        super().disable()
-        # Additional teardown if needed
 
     def on_frame(self, payload: FramePayload) -> None:
         if not self.enabled:
@@ -56,3 +49,5 @@ class MotorInterface(BaseInterface):
         
         command = f"THROTTLE {int(speed)}"
         self.esp32_serial_adapter.write_line(command)
+        if DEBUG:
+            print(f"Sent command: {command}")
