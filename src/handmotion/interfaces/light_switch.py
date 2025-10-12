@@ -1,7 +1,4 @@
-from ..config.config import config
-
-from .base import BaseInterface
-from ..payload import FramePayload
+from .interface_dep import config, BaseInterface, FramePayload
 
 from ..adapters.esp32_serial import ESP32SerialAdapter
 
@@ -17,7 +14,7 @@ class LightInterface(BaseInterface):
 
     def __init__(self, context: dict) -> None:
         super().__init__(context, "esp32_serial_adapter", ESP32SerialAdapter)
-        
+
         self.pinch_state = False  # Track whether a pinch is currently active
 
     def on_frame(self, payload: FramePayload) -> None:

@@ -1,11 +1,8 @@
-from ..config.config import config
-
-from .base import BaseInterface
-
-from ..payload import FramePayload
-from ..payload import Landmark
+from .interface_dep import config, BaseInterface, FramePayload
 
 from ..adapters.cursor import CursorAdapter
+
+from ..payload import Landmark
 
 HAND_PREFERENCE = config.get("CursorInterface", "HAND_PREFERENCE")
 CLICK_THRESHOLD = config.getfloat("MediaPipe", "CLICK_THRESHOLD")
