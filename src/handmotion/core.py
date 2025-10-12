@@ -40,7 +40,7 @@ def main():
     esp32_serial_adapter = ESP32SerialAdapter(name="ESP32")
     esp32_serial_adapter.list_ports()
     esp32_serial_adapter.open_serial()
-    esp32_serial_adapter.establish_connection()
+    esp32_serial_adapter.establish_connection_handshake()
 
     cursor_adapter = CursorAdapter()
 

@@ -1,9 +1,11 @@
+from ..config.config import config
+
 import time
 import serial.tools.list_ports as lp
 import serial
 
-DEFAULT_PORT = "COM4"
-DEFAULT_BAUD = 115200
+DEFAULT_PORT = config.get("ESP32Adapter", "PORT")
+DEFAULT_BAUD = config.getint("ESP32Adapter", "BAUDRATE")
 
 class ESP32SerialAdapter:
 
@@ -33,7 +35,7 @@ class ESP32SerialAdapter:
             self.serial_connection.close()
         print("Serial connection closed.")
 
-    def establish_connection(self) -> None:
+    def establish_connection_handshake(self) -> None:
         
         if not self.serial_connection.is_open:
             raise ConnectionError("Serial port is not open.")
@@ -61,14 +63,3 @@ class ESP32SerialAdapter:
         line = self.serial_connection.readline().decode('utf-8').strip()
         print(f"Received from {self.name}: {line}")
         return line
-
-    def close(self) -> None:
-        pass
-
-# serial_test = ESP32SerialAdapter("ESP32", port="COM6")
-# serial_test.list_ports()
-# serial_test.open_serial()
-# serial_test.establish_connection()
-# while True:
-#     serial_test.write_line(input("Enter command: "))
-#     print(serial_test.read_line())
