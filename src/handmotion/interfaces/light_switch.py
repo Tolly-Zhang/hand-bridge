@@ -3,8 +3,6 @@ from ..config.config import config
 from .base import BaseInterface
 from ..payload import FramePayload
 
-DEBUG = config.getboolean("DEFAULT", "DEBUG")
-
 HAND_PREFERENCE = config.get("LEDInterface", "HAND_PREFERENCE")
 CLICK_THRESHOLD = config.getfloat("MediaPipe", "CLICK_THRESHOLD")
 
@@ -20,11 +18,12 @@ class LightInterface(BaseInterface):
 
     def __init__(self, context: dict) -> None:
         super().__init__(context)
+
         self.esp32_serial_adapter = context.get("esp32_serial_adapter")
         if not self.esp32_serial_adapter:
-            raise ValueError("LEDInterface requires 'esp32_serial_adapter' in context")
 
-        self.hand = None  # Currently tracked hand
+            raise ValueError(f"{self.name} requires 'esp32_serial_adapter' in context")
+
         self.click_threshold = CLICK_THRESHOLD  # Distance threshold for click detection
 
         self.pinch_state = False  # Track whether a pinch is currently active
@@ -40,13 +39,11 @@ class LightInterface(BaseInterface):
         # Compute distances
         dist = self.hand.calculate_xyz_distance(THUMB_TIP, INDEX_FINGER_TIP)
 
-        if DEBUG:
-            print("[LightInterface] Distances:", f"{dist:.4f}")
+        self.print_message("Distances:", f"{dist:.4f}")
 
         is_pinch = dist < self.click_threshold
 
         if is_pinch != self.pinch_state:
             self.pinch_state = is_pinch
-            if DEBUG:
-                print("[LightInterface] Pinch detected - toggling light")
             self.esp32_serial_adapter.write_line("LIGHT TOGGLE")
+            self.print_message("Pinch detected - Toggled Light")

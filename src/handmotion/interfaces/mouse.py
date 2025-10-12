@@ -9,8 +9,6 @@ from ..adapters.cursor import CursorAdapter
 
 import math
 
-DEBUG = config.getboolean("DEFAULT", "DEBUG")
-
 HAND_PREFERENCE = config.get("CursorInterface", "HAND_PREFERENCE")
 CLICK_THRESHOLD = config.getfloat("MediaPipe", "CLICK_THRESHOLD")
 
@@ -29,9 +27,8 @@ class MouseInterface(BaseInterface):
         self.mouse: CursorAdapter = context.get("mouse_controller")
         
         if not self.mouse:
-            raise ValueError("Mouse Interface requires 'mouse_controller' in context")
+            raise ValueError(f"{self.name} requires 'mouse_controller' in context")
         
-        self.hand = None  # Currently tracked hand
         self.pos_x, self.pos_y = 0.5, 0.5  # Start in the center of the screen
         self.click_threshold = CLICK_THRESHOLD  # Distance threshold for click detection
 
@@ -48,8 +45,7 @@ class MouseInterface(BaseInterface):
         self.pos_x, self.pos_y = 1 - tracker.x, tracker.y
         self.mouse.move_norm(self.pos_x, self.pos_y)
 
-        if DEBUG:
-            print(f"Cursor moved to: ({self.pos_x:.2f}, {self.pos_y:.2f})")
+        self.print_message(f"Cursor moved to: ({self.pos_x:.2f}, {self.pos_y:.2f})")
 
         # Example click detection (thumb tip to index tip distance)
         thumb_tip = self.hand.landmarks[THUMB_TIP]
@@ -60,5 +56,4 @@ class MouseInterface(BaseInterface):
 
         if thumb_index_dist < self.click_threshold:  # Arbitrary threshold for click detection
             self.mouse.click_once()
-            if DEBUG:
-                print("Click detected")
+            self.print_message("Click detected")

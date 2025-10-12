@@ -5,8 +5,6 @@ from typing import Any  # Add this if you want to use Any as a placeholder
 
 from ..payload import FramePayload
 
-DEBUG = config.getboolean("DEFAULT", "DEBUG")
-
 HAND_PREFERENCE = config.get("MotorInterface", "HAND_PREFERENCE")
 CLICK_THRESHOLD = config.getfloat("MediaPipe", "CLICK_THRESHOLD")
 
@@ -19,10 +17,11 @@ class MotorInterface(BaseInterface):
 
     def __init__(self, context: dict) -> None:
         super().__init__(context)
+
         self.esp32_serial_adapter = context.get("esp32_serial_adapter")
+        
         if not self.esp32_serial_adapter:
-            raise ValueError("MotorInterface requires 'esp32_serial_adapter' in context")
-        self.hand = None  # Currently tracked hand
+            raise ValueError(f"{self.name} requires 'esp32_serial_adapter' in context")
 
     def on_frame(self, payload: FramePayload) -> None:
         
@@ -36,9 +35,7 @@ class MotorInterface(BaseInterface):
 
         speed = (distance - CLICK_THRESHOLD) / (0.15 - CLICK_THRESHOLD) * 10
         speed = min(max(speed, 0), 10)
-        # print(f"Calculated speed: {speed:.2f}")
         
         command = f"THROTTLE {int(speed)}"
         self.esp32_serial_adapter.write_line(command)
-        if DEBUG:
-            print(f"Sent command: {command}")
+        self.print_message(f"Sent command: {command}")

@@ -31,8 +31,6 @@ class BaseInterface(ABC):
     @abstractmethod
     def on_frame(self, payload: FramePayload) -> bool:
 
-        self.print_message("on_frame called")
-
         if not self.enabled:
             return False
         
@@ -42,6 +40,7 @@ class BaseInterface(ABC):
             self.print_message("No Hands Detected")
             return False  # No hands detected
         # To be implemented by subclasses
+        return True
 
     def find_hand(self, payload: FramePayload, preference: str) -> None:
         for hand in payload.hands:
