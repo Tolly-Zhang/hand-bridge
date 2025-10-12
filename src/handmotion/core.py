@@ -56,11 +56,10 @@ def main():
 
         camera.read()
 
-
         results = hands.process_sync(camera.get_frame_rgb())
         hands.annotate_image(camera.get_frame_bgr())
 
-        payload = PayloadBuilder.build_payload(frame_dimensions=camera.get_frame_dimensions(), 
+        payload: FramePayload = PayloadBuilder.build_payload(frame_dimensions=camera.get_frame_dimensions(), 
                                        time_ns=time_controller.get_elapsed_time_ns(), 
                                        time_delta_ns=time_controller.get_delta_ns(),
                                        hands=results)
