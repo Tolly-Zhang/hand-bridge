@@ -1,9 +1,9 @@
-from .base import BaseDemo
+from .base import BaseInterface
 from ..payload import FramePayload
 
-class SwipeScrollInterface(BaseDemo):
+class SwipeScrollInterface(BaseInterface):
     id = "swipe_scroll"
-    name = "Swipe Scroll Demo"
+    name = "Swipe Scroll Interface"
 
     def on_frame(self, payload: FramePayload) -> None:
         # TODO: Implement swipe/scroll logic
