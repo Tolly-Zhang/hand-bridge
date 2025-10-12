@@ -53,9 +53,3 @@ class CursorAdapter:
                 pyautogui.hscroll(dx)
             except AttributeError:
                 pass  # hscroll may not be available on all platforms
-
-# mouse = MouseController()
-# mouse.printRange()
-# mouse.move_norm(0.5, 0.5)
-# mouse.click_once()
-# mouse.scroll(dy=1)
