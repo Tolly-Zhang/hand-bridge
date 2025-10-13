@@ -60,9 +60,9 @@ def main():
         hands.annotate_image(camera.get_frame_bgr())
 
         payload: FramePayload = PayloadBuilder.build_payload(frame_dimensions=camera.get_frame_dimensions(), 
-                                       time_ns=time_controller.get_elapsed_time_ns(), 
-                                       time_delta_ns=time_controller.get_delta_ns(),
-                                       hands=results)
+                                                             time_ns=time_controller.get_elapsed_time_ns(), 
+                                                             time_delta_ns=time_controller.get_delta_ns(),
+                                                             hands=results)
         # payload.print_summary()
 
         camera.show_feed()
