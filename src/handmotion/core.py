@@ -15,9 +15,7 @@ from .interfaces.motor import MotorInterface
 from .adapters.cursor import CursorAdapter
 from .adapters.esp32_serial import ESP32SerialAdapter
 
-from cv2_enumerate_cameras import enumerate_cameras
 import keyboard
-import time
 
 def main():
 
@@ -50,9 +48,8 @@ def main():
     time_controller.start()
 
     while True:
-        time.sleep(0.05)  # Small delay to prevent 100% CPU usage
-        
-        time_controller.update()
+
+        time_controller.update(0.05)
 
         camera.read()
 
