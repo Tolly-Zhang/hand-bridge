@@ -56,14 +56,14 @@ class Hand:
         return self.world_landmarks[index]
     
     def calculate_xy_distance(self, lm1_idx: int, lm2_idx: int) -> float:
-        lm1 = self.landmarks[lm1_idx]
-        lm2 = self.landmarks[lm2_idx]
+        lm1 = self.get_landmark(lm1_idx)
+        lm2 = self.get_landmark(lm2_idx)
         return math.sqrt((lm1.x - lm2.x) ** 2 + 
                          (lm1.y - lm2.y) ** 2)
     
     def calculate_xyz_distance(self, lm1_idx: int, lm2_idx: int) -> float:
-        lm1 = self.world_landmarks[lm1_idx]
-        lm2 = self.world_landmarks[lm2_idx]
+        lm1 = self.get_world_landmark(lm1_idx)
+        lm2 = self.get_world_landmark(lm2_idx)
         return math.sqrt((lm1.x - lm2.x) ** 2 + 
                          (lm1.y - lm2.y) ** 2 + 
                          (lm1.z - lm2.z) ** 2)
