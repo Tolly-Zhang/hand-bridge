@@ -29,13 +29,13 @@ class TimeController:
         return self.elapsed
 
     def get_elapsed_time_s(self) -> float:
-        return self.elapsed / 1e9
+        return self.get_elapsed_time_ns() / 1e9
     
     def get_delta_ns(self) -> float:
         return self.delta
     
     def get_delta_s(self) -> float:
-        return self.delta / 1e9
+        return self.get_delta_ns() / 1e9
 
     def print_elapsed(self) -> None:
         print(f"Time (Elapsed): {self.get_elapsed_time_s():.4f}", 
