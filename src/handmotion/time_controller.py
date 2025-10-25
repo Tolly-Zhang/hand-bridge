@@ -1,5 +1,9 @@
 import time
 
+from .config.config import config
+
+DEFAULT_FPS = config.getint("TimeController", "FPS")
+
 class TimeController:
     def __init__(self):
         self.start_time = 0
@@ -11,7 +15,7 @@ class TimeController:
     def start(self):
         self.start_time = time.time_ns()
         
-    def update(self, sleep_time_s: float = 0.0):
+    def update(self, sleep_time_s: float = 1 / DEFAULT_FPS) -> None:
         self.current_time = time.time_ns()
 
         if sleep_time_s > 0:

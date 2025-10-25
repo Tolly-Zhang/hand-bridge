@@ -7,7 +7,6 @@ import numpy as np
 DEFAULT_CAMERA_INDEX = config.getint("Camera", "INDEX")
 ASK_FOR_CAMERA_INDEX = config.getboolean("Camera", "ASK_FOR_INDEX")
 DEFAULT_CAMERA_RESOLUTION = (config.getint("Camera", "RESOLUTION_X"), config.getint("Camera", "RESOLUTION_Y"))
-DEFAULT_CAMERA_FPS = config.getint("Camera", "FPS")
 DEFAULT_WINDOW_NAME = config.get("Camera", "WINDOW_NAME")
 
 class Camera:

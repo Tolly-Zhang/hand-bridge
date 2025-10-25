@@ -49,7 +49,7 @@ def main():
 
     while True:
 
-        time_controller.update(0.05)
+        time_controller.update()
 
         camera.read()
 
