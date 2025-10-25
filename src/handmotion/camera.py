@@ -48,11 +48,10 @@ class Camera:
         ret, self.frame_bgr = self.cap.read()
 
         if not ret:
-            raise RuntimeError("Failed to read frame from camera.")
-
-        self.frame_rgb = cv2.cvtColor(self.frame_bgr, cv2.COLOR_BGR2RGB)
+            raise RuntimeError("Failed to read frame from camera.")        
 
     def get_frame_rgb(self) -> np.ndarray:
+        self.frame_rgb = cv2.cvtColor(self.frame_bgr, cv2.COLOR_BGR2RGB)
         return self.frame_rgb
 
     def get_frame_bgr(self) -> np.ndarray:
