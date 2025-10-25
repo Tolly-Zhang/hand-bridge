@@ -54,7 +54,7 @@ def main():
         camera.read()
 
         results = hands.process_sync(camera.get_frame_rgb())
-        hands.annotate_image(camera.get_frame_bgr())
+        # hands.annotate_image(camera.get_frame_bgr())
 
         payload: FramePayload = PayloadBuilder.build_payload(frame_dimensions=camera.get_frame_dimensions(), 
                                                              time_ns=time_controller.get_elapsed_time_ns(), 
@@ -62,7 +62,7 @@ def main():
                                                              hands=results)
         # payload.print_summary()
 
-        camera.show_feed()
+        # camera.show_feed()
 
         interface_manager.on_frame(payload)
 
