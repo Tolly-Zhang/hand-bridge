@@ -19,7 +19,7 @@ class TimeController:
         self.current_time = time.time_ns()
 
         if sleep_time_s > 0:
-            time.sleep(max(self.last_elapsed + sleep_time_s * 1e9 - self.current_time, 0))
+            time.sleep(max(self.last_elapsed / 1e9 + sleep_time_s - self.current_time / 1e9, 0))
 
         self.elapsed = self.current_time - self.start_time
         self.delta = self.elapsed - self.last_elapsed
