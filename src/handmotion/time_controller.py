@@ -13,12 +13,13 @@ class TimeController:
         
     def update(self, sleep_time_s: float = 0.0):
         self.current_time = time.time_ns()
+
+        if sleep_time_s > 0:
+            time.sleep(max(self.last_elapsed + sleep_time_s * 1e9 - self.current_time, 0))
+
         self.elapsed = self.current_time - self.start_time
         self.delta = self.elapsed - self.last_elapsed
         self.last_elapsed = self.elapsed
-        
-        if sleep_time_s > 0:
-            time.sleep(sleep_time_s)
 
     def get_elapsed_time_ns(self) -> float:
         return self.elapsed
