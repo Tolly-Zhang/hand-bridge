@@ -22,8 +22,8 @@ class CursorAdapter:
             y = min(max(y, 0.0), 1.0)
             clamped = True
         if clamped:
-            print(f"[MouseController] Warning: move_norm received out-of-bounds values (x={orig_x}, y={orig_y}), clamped to (x={x}, y={y})")
-            
+            print(f"[Cursor Adapter] Warning: move_norm received out-of-bounds values ({orig_x:.4f}, {orig_y:.4f}), clamped to ({x:.4f}, {y:.4f})")
+
         px = int(x * self.screen_width)
         py = int(y * self.screen_height)
         pyautogui.moveTo(px, py)
